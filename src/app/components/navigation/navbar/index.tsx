@@ -31,6 +31,11 @@ const Navbar = () => {
                   <p>2D artwork</p>
                 </Link>
               </li>
+              <li>
+                <Link href="/trip-reports">
+                  <p>Trip reports</p>
+                </Link>
+              </li>
             </ul>
             <Button />
           </div>
