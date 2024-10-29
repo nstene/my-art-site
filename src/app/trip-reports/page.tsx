@@ -34,17 +34,45 @@ const TripReportsPage = () => {
 
     // Render password input if not authenticated
     return (
-        <div>
-      <h2>Enter Password to Access This Page</h2>
-      <input
-        type="password"
-        placeholder="Enter password"
-        value={inputPassword}
-        onChange={(e) => setInputPassword(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-      <button onClick={handlePasswordSubmit}>Submit</button>
-    </div>
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100vh'
+        }}>
+            <div style={{
+                padding: '20px',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                boxShadow: '0px 4px 10px rgba(0,0,0,0.1)',
+                textAlign: 'center',
+            }}>
+            <h2>Enter Password to Access This Page</h2>
+            <input
+                type="password"
+                placeholder="Enter password"
+                value={inputPassword}
+                onChange={(e) => setInputPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
+                style={{
+                    padding: '8px',
+                    margin: '10px 0',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                  }}
+            />
+            <button onClick={handlePasswordSubmit} style={{
+                padding: '8px 16px',
+                backgroundColor: '#0070f3',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+            }}>
+                Submit
+            </button>
+            </div>
+        </div>
     );
 };
 

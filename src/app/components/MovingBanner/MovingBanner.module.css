@@ -19,7 +19,7 @@
   
   @keyframes moveBanner {
     0% {
-      transform: translateX(160%); /* Start off screen */
+      transform: translateX(350%); /* Start off screen */
     }
     100% {
       transform: translateX(-100%); /* Move off screen */
