@@ -1,6 +1,7 @@
 import Image from "next/image";
 // import <Link> component to provide prefetching and client-side navigation between routes
 import Link from 'next/link'
+import MovingBanner from "./components/MovingBanner/MovingBanner";
 
 export default function Home() {
   return (
@@ -102,6 +103,8 @@ export default function Home() {
           Go to nextjs.org →
         </a>
       </footer>
+      
+      <MovingBanner />
     </div>
   );
 }

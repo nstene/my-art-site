@@ -43,7 +43,22 @@ const Logo = () => {
           width={width < 1024 ? "75" : "250"}
           height={width < 1024 ? "75" : "74"}
           className="relative"
+          // apply rotation animation
+          style={{
+            animation: 'rotate 5s linear infinite'
+          }}
         />
+        {/* define the rotate keyframes for use within this component */}
+        <style jsx>{`
+            @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(-360deg);
+            }
+            }
+        `}</style>
       </Link>
       <div
         style={{
