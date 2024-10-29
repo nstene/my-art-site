@@ -11,15 +11,21 @@
     z-index: 1000;         /* Ensure it appears above other content */
   }
   
+  
   .bannerContent {
-    display: inline-block;
-    padding: 10px 20px;
+    display: inline-flex; /* ensures both <p> elements are displayed on a single line */
+    padding-left: 100vw;
     animation: moveBanner 15s linear infinite; /* Animation */
+  }
+
+  .bannerContent p {
+    margin: 0;
+    padding-left: 100vw; /* Start the first instance off-screen */
   }
   
   @keyframes moveBanner {
     0% {
-      transform: translateX(350%); /* Start off screen */
+      transform: translateX(0);
     }
     100% {
       transform: translateX(-100%); /* Move off screen */
