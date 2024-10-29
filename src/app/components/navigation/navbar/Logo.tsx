@@ -2,71 +2,70 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Button from "./Button";
 
 const Logo = () => {
   //update the size of the logo when the size of the screen changes
-  const [width, setWidth] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(0);
 
   const updateWidth = () => {
     const newWidth = window.innerWidth;
-    setWidth(newWidth);
+    setWindowWidth(newWidth);
   };
 
   // updateWidth function is placed inside the useEffect hook because it references the 'window' object, which is only available on the client side.
   useEffect(() => {
     window.addEventListener("resize", updateWidth);
     updateWidth();
-  }, []);
-
-  // change between the logo and the button when the user scrolls
-  const [showButton, setShowButton] = useState(false);
-
-  const changeNavButton = () => {
-    if (window.scrollY >= 400 && window.innerWidth < 768) {
-      setShowButton(true);
-    } else {
-      setShowButton(false);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", changeNavButton);
+    return () => window.removeEventListener("resize", updateWidth); // Cleanup on unmount
   }, []);
 
   return (
     <>
-      <Link href="/" style={{ display: showButton ? "none" : "block" }}>
-        <Image
-          src="/images/logo.png"
-          alt="Logo"
-          width={width < 1024 ? "75" : "250"}
-          height={width < 1024 ? "75" : "74"}
-          className="relative"
-          // apply rotation animation
-          style={{
-            animation: 'rotate 5s linear infinite'
-          }}
-        />
-        {/* define the rotate keyframes for use within this component */}
-        <style jsx>{`
-            @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(-360deg);
-            }
-            }
-        `}</style>
-      </Link>
-      <div
-        style={{
-          display: showButton ? "block" : "none",
-        }}
-      >
-        <Button />
+      {/* Centering Container */}
+      <div className="logo-container">
+        <Link href="/">
+          <Image
+            src="/images/logo.png"
+            alt="Logo"
+            width={Math.floor(windowWidth * 0.35)} // Set width to 75% of window width
+            height={Math.floor(windowWidth * 0.35)}
+            className="logo"
+            // apply rotation animation
+            style={{
+              filter: 'invert(1)', // Invert the colors
+              animation: 'rotate 5s linear infinite',
+              position: 'relative'
+            }}
+          />
+        </Link>
       </div>
+
+      {/* Add styles for centering */}
+      <style jsx>{`
+        .logo-container {
+          display: flex;
+          justify-content: center; /* Center horizontally */
+          align-items: center; /* Center vertically */
+          height: 100vh; /* Full viewport height */
+          position: relative; /* Allow absolute positioning of inner elements */
+        }
+
+        .logo {
+          /* Centering the logo on the page */
+          transform-origin: center; /* Ensure the logo rotates around its center */
+        }
+        
+        @keyframes rotate {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(-360deg);
+          }
+        }
+        
+      `}
+      </style>
     </>
   );
 };
