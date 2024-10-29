@@ -1,0 +1,28 @@
+/* MovingBanner.module.css */
+.bannerContainer {
+    position: fixed;
+    bottom: 0;  /* Position at the bottom */
+    left: 0;
+    right: 0;
+    background-color: #333; /* Background color */
+    color: white;           /* Text color */
+    overflow: hidden;       /* Hide overflow */
+    white-space: nowrap;    /* Prevent line breaks */
+    z-index: 1000;         /* Ensure it appears above other content */
+  }
+  
+  .bannerContent {
+    display: inline-block;
+    padding: 10px 20px;
+    animation: moveBanner 10s linear infinite; /* Animation */
+  }
+  
+  @keyframes moveBanner {
+    0% {
+      transform: translateX(160%); /* Start off screen */
+    }
+    100% {
+      transform: translateX(-100%); /* Move off screen */
+    }
+  }
+  

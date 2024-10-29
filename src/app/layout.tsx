@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navigation from "./components/navigation/navbar";
+import MovingBanner from "./components/MovingBanner/MovingBanner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,6 +27,7 @@ export default function RootLayout({
       >
         <Navigation />
         {children}
+        <MovingBanner />
       </body>
     </html>
   );
