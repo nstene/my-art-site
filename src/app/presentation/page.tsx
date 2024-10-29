@@ -1,4 +1,4 @@
-// `app/dashboard/page/tsx is the UI for the `/dashboard` url
+// `app/presentation/page.tsx is the UI for the `/dashboard` url
 
 export default function Page() {
     return ( 
