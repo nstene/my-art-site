@@ -34,27 +34,27 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-full">
             <ul className="hidden md:flex gap-x-6 text-white">
               <li>
-                <Link href="/Journal">
-                  <p>Journal</p>
-                </Link>
-              </li>
-              <li>
-                <Link href="/presentation">
+                <Link href="/classic-routes/presentation">
                   <p>Presentation</p>
                 </Link>
               </li>
               <li>
-                <Link href="/ThreeDPage">
+                <Link href="/classic-routes/Journal">
+                  <p>Journal</p>
+                </Link>
+              </li>
+              <li>
+                <Link href="/classic-routes/ThreeDPage">
                   <p>3D artwork</p>
                 </Link>
               </li>
               <li>
-                <Link href="/TwoDPage">
+                <Link href="/classic-routes/TwoDPage">
                   <p>2D artwork</p>
                 </Link>
               </li>
               <li>
-                <Link href="/trip-reports">
+                <Link href="/classic-routes/trip-reports">
                   <p>Trip reports</p>
                 </Link>
               </li>

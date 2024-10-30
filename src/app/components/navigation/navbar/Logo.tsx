@@ -23,7 +23,7 @@ const Logo = () => {
     <>
       {/* Centering Container */}
       <div className="logo-container">
-        <Link href="/presentation">
+        <Link href="/classic-routes/presentation">
           <Image
             src="/images/logo.png"
             alt="Logo"
