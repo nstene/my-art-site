@@ -1,79 +1,20 @@
-"use client"; // enable usage of useState hook
-import React, {useState} from "react";
+import React from "react";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
 
-const TripReportsPage = () => {
-    const [inputPassword, setInputPassword] = useState('');
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-    const handlePasswordSubmit = () => {
-        const correctPassword = 'curiosity';
-        if (inputPassword === correctPassword) {
-            setIsAuthenticated(true);
-        } else {
-            alert('Incorrect password. Please try again.')
-        }
-    };
-
-    // Detect Enter key press
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            handlePasswordSubmit(); // Call the submit function
-        }
-    };
-
-    if (isAuthenticated) {
-        // render protected content if authenticated
-        return (
-            <div>
-              <h1>Welcome to the Protected Page!</h1>
-              <p>This content is password-protected.</p>
-              {/* Add the rest of your page content here */}
-            </div>
-          );
+export default async function TripReportsPage() {
+    const session = await getServerSession();
+    
+    // if no session, redirect to sign in page
+    if (!session || !session.user) {
+        redirect("/api/auth/signin")
     }
 
-    // Render password input if not authenticated
     return (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100vh'
-        }}>
-            <div style={{
-                padding: '20px',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 10px rgba(0,0,0,0.1)',
-                textAlign: 'center',
-            }}>
-            <h2>Enter Password to Access This Page</h2>
-            <input
-                type="password"
-                placeholder="Enter password"
-                value={inputPassword}
-                onChange={(e) => setInputPassword(e.target.value)}
-                onKeyDown={handleKeyDown}
-                style={{
-                    padding: '8px',
-                    margin: '10px 0',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                  }}
-            />
-            <button onClick={handlePasswordSubmit} style={{
-                padding: '8px 16px',
-                backgroundColor: '#0070f3',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-            }}>
-                Submit
-            </button>
-            </div>
+        <div>
+            Welcome to the trip reports page! <br />
+            You will only see this if you're trusted. <br />
+            Please be worthy of that trust.
         </div>
-    );
-};
-
-export default TripReportsPage
+    )
+}

@@ -1,6 +1,30 @@
+"use client";
 import React from "react";
 import Link from "next/link";
-import Button from "./Button";
+//import AuthButton from "./AuthButton";
+
+import { signIn, signOut, useSession } from "next-auth/react";
+
+function AuthButton1() {
+  const { data: session } = useSession();
+
+  if (session) {
+    return (
+      <>
+        {session?.user?.name} <br />
+        <button className="h-12 rounded-lg bg-white font-bold px-5" onClick={() => signOut()}>Sign out</button>
+      </>
+    );
+  }
+  return (
+    <>
+      Not signed in <br />
+      <button className="h-12 rounded-lg bg-white font-bold px-5" onClick={() => signIn()}>Sign in</button>
+    </>
+  );
+}
+
+//export default AuthButton;
 
 const Navbar = () => {
   return (
@@ -35,7 +59,7 @@ const Navbar = () => {
                 </Link>
               </li>
             </ul>
-            <Button />
+            <AuthButton1 />
           </div>
         </div>
       </div>
