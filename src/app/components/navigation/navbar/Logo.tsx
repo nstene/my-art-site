@@ -23,12 +23,12 @@ const Logo = () => {
     <>
       {/* Centering Container */}
       <div className="logo-container">
-        <Link href="/">
+        <Link href="/presentation">
           <Image
             src="/images/logo.png"
             alt="Logo"
-            width={Math.floor(windowWidth * 0.35)} // Set width to 75% of window width
-            height={Math.floor(windowWidth * 0.35)}
+            width={Math.floor(windowWidth * 0.5)} // Set width to 75% of window width
+            height={Math.floor(windowWidth * 0.5)}
             className="logo"
             // apply rotation animation
             style={{
