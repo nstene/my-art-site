@@ -1,14 +1,16 @@
 /* MovingBanner.module.css */
+
 .bannerContainer {
     position: fixed;
     bottom: 0;  /* Position at the bottom */
     left: 0;
     right: 0;
-    background-color: #333; /* Background color */
-    color: white;           /* Text color */
+    background-color: #F2A30F; /* Background color */
+    color: #F21D44;           /* Text color */
     overflow: hidden;       /* Hide overflow */
     white-space: nowrap;    /* Prevent line breaks */
-    z-index: 1000;         /* Ensure it appears above other content */
+    z-index: 1000;          /* Ensure it appears above other content */
+    height: 80px;  
   }
   
   
@@ -16,11 +18,9 @@
     display: inline-flex; /* ensures both <p> elements are displayed on a single line */
     padding-left: 100vw;
     animation: moveBanner 15s linear infinite; /* Animation */
-  }
-
-  .bannerContent p {
-    margin: 0;
-    padding-left: 100vw; /* Start the first instance off-screen */
+    font-size: 40px; /* Increase font size */
+    line-height: 80px; /* Center text vertically if height is 80px */  
+    font-family: var(--font-bungee-shade);  
   }
   
   @keyframes moveBanner {
