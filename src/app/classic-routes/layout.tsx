@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
+import Head from 'next/head';
+import { Bungee_Shade } from 'next/font/google' 
 import "../globals.css";
 import Navigation from "../components/navigation/navbar";
 // Server-side session fetcher
@@ -7,15 +7,10 @@ import { getServerSession } from "next-auth";
 import SessionProvider from "../components/SessionProvider";
 import MovingBanner from "../components/MovingBanner/MovingBanner";
 
-const geistSans = localFont({
-  src: "../fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "../fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const bungeeShade = Bungee_Shade({
+  weight: "400",
+  subsets: ['latin'],
+  variable: "--font-bungee-shade"
 });
 
 export default async function RootLayout({
@@ -27,16 +22,14 @@ export default async function RootLayout({
   const session = await getServerSession();
 
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <>
+      <div className={`${bungeeShade.variable} antialiased`}>
         <SessionProvider session={session}>
           <Navigation />
           {children}
           <MovingBanner />
         </SessionProvider>
-      </body>
-    </html>
+      </div>
+    </>
   );
 }

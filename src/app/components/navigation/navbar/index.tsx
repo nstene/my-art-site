@@ -58,6 +58,11 @@ const Navbar = () => {
                   <p>Trip reports</p>
                 </Link>
               </li>
+              <li>
+                <Link href="/classic-routes/signup">
+                  <p>Access request</p>
+                </Link>
+              </li>
             </ul>
             <AuthButton1 />
           </div>

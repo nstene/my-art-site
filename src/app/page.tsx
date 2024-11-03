@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 // import <Link> component to provide prefetching and client-side navigation between routes
 import Link from 'next/link'
@@ -6,6 +7,9 @@ import Logo from "./components/navigation/navbar/Logo"
 
 export default function Home() {
   return (
-    <Logo />
+    <>
+      {/*<p> ἓν τὸ πᾶν </p>*/}
+      <Logo />
+    </>
   );
 }
