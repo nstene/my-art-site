@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-//import AuthButton from "./AuthButton";
 
 import { signIn, signOut, useSession } from "next-auth/react";
 
@@ -11,15 +10,15 @@ function AuthButton1() {
   if (session) {
     return (
       <>
-        {session?.user?.name} <br />
-        <button className="h-12 rounded-lg bg-white font-bold px-5" onClick={() => signOut()}>Sign out</button>
+        {session?.user?.name}
+        <button className="p-2 rounded-full bg-transparent hover:bg-[radial-gradient(circle,rgba(128,128,128,1),rgba(128,128,128,0))] transition duration-300 ease-in-out" onClick={() => signOut()}>Sign out</button>
       </>
     );
   }
   return (
     <>
-      Not signed in <br />
-      <button className="h-12 rounded-lg bg-white font-bold px-5" onClick={() => signIn()}>Sign in</button>
+      Not signed in
+      <button className="p-2 rounded-full bg-transparent hover:bg-[radial-gradient(circle,rgba(128,128,128,1),rgba(128,128,128,0))] transition duration-300 ease-in-out" onClick={() => signIn()}>Sign in</button>
     </>
   );
 }
@@ -47,23 +46,29 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="w-full h-30 bg-emerald-800 sticky top-0">
+      <div className="w-full h-30 bg-transparent sticky top-0">
         <div className="container mx-auto px-4 h-full">
           <div className="flex justify-between items-center h-full">
             <ul className="hidden md:flex gap-x-6 text-white">
               <li>
                 <Link href="/classic-routes/presentation">
-                  <p>Presentation</p>
+                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                    Presentation
+                  </p>
                 </Link>
               </li>
               <li>
                 <Link href="/classic-routes/Journal">
-                  <p>Journal</p>
+                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                    Journal
+                  </p>
                 </Link>
               </li>
               <li>
                 <Link href="/classic-routes/ThreeDPage">
-                  <p>3D artwork</p>
+                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                    3D Artworks
+                  </p>
                 </Link>
               </li>
               <li
@@ -72,24 +77,32 @@ const Navbar = () => {
                 className="relative" // This is to position the dropdown correctly
               >
                 <Link href="">
-                  <p>2D artwork</p>
+                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                    2D Artworks
+                  </p>
                 </Link>
 
               {isDropdownOpen && (
-                <ul className="absolute left-0 mt-2 w-48 bg-white text-black shadow-lg">
+                <ul className="absolute left-0 mt-2 w-48 bg-transparent text-white shadow-lg">
                   <li>
                     <Link href="/classic-routes/TwoDPages/stargazing">
-                      <p className="p-2 hover:bg-gray-200">Stargazing</p>
+                      <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                        Stargazing
+                      </p>
                     </Link>
                   </li>
                   <li>
                     <Link href="/classic-routes/TwoDPages/rotatingStuff">
-                      <p className="p-2 hover:bg-gray-200">Rotating Stuff</p>
+                      <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                        Rotating Stuff
+                      </p>
                     </Link>
                   </li>
                   <li>
                     <Link href="/classic-routes/TwoDPage3">
-                      <p className="p-2 hover:bg-gray-200">2D Art 3</p>
+                      <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                        Page 3
+                      </p>
                     </Link>
                   </li>
                 </ul>
@@ -97,12 +110,16 @@ const Navbar = () => {
             </li>
               <li>
                 <Link href="/classic-routes/trip-reports">
-                  <p>Trip reports</p>
+                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                    Trip Reports
+                  </p>
                 </Link>
               </li>
               <li>
                 <Link href="/classic-routes/signup">
-                  <p>Access request</p>
+                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                    Access Requests
+                  </p>
                 </Link>
               </li>
             </ul>
