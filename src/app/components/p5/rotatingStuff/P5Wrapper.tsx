@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useRef } from 'react';
 import p5 from 'p5';
-import { MySketch } from './sketch';
+import { MySketch } from './rotatingStuff';
 
 export default function P5Wrapper() {
   const canvasRef = useRef<HTMLDivElement>(null);

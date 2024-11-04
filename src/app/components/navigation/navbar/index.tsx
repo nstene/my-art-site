@@ -71,20 +71,20 @@ const Navbar = () => {
                 onMouseLeave={handleMouseLeave} 
                 className="relative" // This is to position the dropdown correctly
               >
-                <Link href="/classic-routes/TwoDPage">
+                <Link href="">
                   <p>2D artwork</p>
                 </Link>
 
               {isDropdownOpen && (
                 <ul className="absolute left-0 mt-2 w-48 bg-white text-black shadow-lg">
                   <li>
-                    <Link href="/classic-routes/TwoDPage1">
-                      <p className="p-2 hover:bg-gray-200">2D Art 1</p>
+                    <Link href="/classic-routes/TwoDPages/stargazing">
+                      <p className="p-2 hover:bg-gray-200">Stargazing</p>
                     </Link>
                   </li>
                   <li>
-                    <Link href="/classic-routes/TwoDPage2">
-                      <p className="p-2 hover:bg-gray-200">2D Art 2</p>
+                    <Link href="/classic-routes/TwoDPages/rotatingStuff">
+                      <p className="p-2 hover:bg-gray-200">Rotating Stuff</p>
                     </Link>
                   </li>
                   <li>
