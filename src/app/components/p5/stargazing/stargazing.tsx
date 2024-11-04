@@ -18,12 +18,14 @@ export const MySketch = () => (p: p5) => {
   const twinkling = 0.8;
   const n_stars = 400;
 
-  const generateRandomStars = (n: number, width: number, height: number): StarPosition[] => {
+  const generateRandomStars = (n: number, half_width: number, half_height: number): StarPosition[] => {
     const star_positions: StarPosition[] = [];
+
+    const max_dim = Math.max(half_width, half_height);
     
     for (let i = 0; i < n; i++) {
-      const x = Math.random() * width; // Generate random x coordinate
-      const y = Math.random() * height; // Generate random y coordinate
+      const x = p.random(-max_dim, max_dim); // Generate random x coordinate
+      const y = p.random(-max_dim, max_dim); // Generate random y coordinate
       star_positions.push({ x, y }); // Add the new position to the array
     }
   
@@ -86,16 +88,20 @@ export const MySketch = () => (p: p5) => {
   p.setup = () => {
     p.createCanvas(width, height);
     p.frameRate(24); // Typical animation fps. If I want the animation to speed up, increase ball speed
-    star_positions = generateRandomStars(n_stars, p.width, p.height);
+    star_positions = generateRandomStars(n_stars, p.width/2, p.height/2);
   };
 
   p.draw = () => {    
     p.background(0, 16); // clear background at each iteration otherwise the circles will be drawn on top of eachother. Also add some transparency for fading effects.
+
     // populate stars
+    p.translate(width/2, height/2);
+    p.rotate(p.radians(p.frameCount/50));
     starGazing(star_positions, twinkling);
     //({ x_pos, y_pos, x_speed, y_speed } = updatePositionMRU(x_pos, y_pos, x_speed, y_speed));
     ({ x_pos, y_pos } = updatePositionNoise(x_pos, y_pos, t));
 
+    p.translate(-width/2, -height/2);
     // Draw the circle, but the y position is changing each draw() iteration with framecount
     //makeCloud(x_pos, y_pos)
     makeCircle(x_pos, y_pos);
