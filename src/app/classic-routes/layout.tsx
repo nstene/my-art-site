@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import { Bungee_Shade } from 'next/font/google' 
 import "../globals.css";
 import Navigation from "../components/navigation/navbar";
