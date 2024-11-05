@@ -2,25 +2,23 @@
 import { useEffect } from 'react';
 import p5 from 'p5';
 
-export const MySketch = () => (p: p5) => {
-    
+export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
+    const width = p.windowWidth;
+    const height = p.windowHeight;
+
     let sound: p5.SoundFile;
     let fft: p5.FFT;
 
     p.preload = () => {
-      sound = p.loadSound('../../../../../public/music/public/music/Nymphs-007-NicolasJaar-Fight.wav');
-    };
-
-    p.preload = () => {
-      sound = p.loadSound('/music/public/music/Nymphs-007-NicolasJaar-Fight.wav');
+      sound = p.loadSound('/music/Nymphs-007-NicolasJaar-Fight.wav');
     };
 
     p.setup = () => {
       // Initiate the FFT object
       //fft = new p.FFT()
-      p.createCanvas(p.width, p.height);
+      p.createCanvas(width, height);
       const playButton = p.createButton('Play Music');
-      playButton.position(10, 10);
+      playButton.position(width/2, height/2);
       playButton.mousePressed(() => {
         sound.play();
     });

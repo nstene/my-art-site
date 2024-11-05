@@ -1,50 +1,35 @@
 // components/P5Wrapper.tsx
 "use client";
-import { useEffect, useRef, useState } from 'react';
-import p5 from 'p5';
-import p5Types from 'p5';
+import { useEffect, useRef } from 'react';
 import { MySketch } from './soundVisualizer';
 
-type P5jsContainerRef = HTMLDivElement;
-type P5jsSketch = (p: p5Types, parentRef: P5jsContainerRef) => void;
-type P5jsContainer = ({ sketch }: { sketch: P5jsSketch }) => React.JSX.Element;
-
-export const P5jsContainer: P5jsContainer = ({ sketch }) => {
-  const parentRef = useRef<P5jsContainerRef>(null);
-
-  return <div ref={parentRef}></div>;
-};
-
-const P5Wrapper = ({ sketch }: { sketch: P5jsSketch }) => {
+const P5Wrapper = () => {
+  const canvasRef = useRef<HTMLDivElement>(null);
   
-  const [isMounted, setIsMounted] = useState<boolean>(false);
-  const parentRef = useRef<P5jsContainerRef>(null);
-
-  useEffect(() => {
-    setIsMounted(true); // Ensure component is mounted
-  }, []);
-
-  useEffect(() => {
-    // If not mounted, do nothing
-    if (!isMounted || !parentRef.current) return;
- 
+  useEffect(() => { 
     // Function to initialize p5.js and the sketch
     const initP5 = async () => {
       try {
         // Dynamically import p5 and p5.sound addon
         const p5Module = await import('p5');
-        await import('p5/lib/addons/p5.sound');
+        const p5SoundModule = await import('p5/lib/addons/p5.sound');        
         
-        const p5Instance = new p5Module.default((p: p5Types) => {
-          if (parentRef.current) {
-            sketch(p, parentRef.current); // Pass p5 instance and parent ref to the sketch
-          }
-        });
+        // Ensure p5 and p5.sound are loaded
+        if (!p5Module.default || !p5SoundModule) {
+          throw new Error('p5 or p5.sound failed to load');
+        }
 
-        // Return a cleanup function
-        return () => {
-          p5Instance.remove(); // Cleanup p5 instance when the component unmounts
-        };
+        // Create a new p5 instance and pass the sketch and the canvas reference
+        if (canvasRef.current) {
+          const p5Instance = new p5Module.default((p: any) => {
+            MySketch()(p, canvasRef.current!); // Non-null assertion operator
+          }, canvasRef.current);
+
+          // Return cleanup function
+          return () => {
+            p5Instance.remove();
+          };
+        }
       } catch (error) {
         console.error('Error loading p5:', error);
       }
@@ -53,9 +38,8 @@ const P5Wrapper = ({ sketch }: { sketch: P5jsSketch }) => {
     // Call the initialization function
     const cleanupPromise = initP5();
 
-    // Use the async cleanup once the promise resolves
+    // Handle cleanup when the component unmounts
     cleanupPromise.then((cleanup) => {
-      // If cleanup exists, call it
       if (cleanup) {
         return () => cleanup();
       }
@@ -63,16 +47,13 @@ const P5Wrapper = ({ sketch }: { sketch: P5jsSketch }) => {
 
     // Cleanup on component unmount
     return () => {
-      if (cleanupPromise) {
-        cleanupPromise.then((cleanup) => {
-          if (cleanup) cleanup();
-        });
-      }
+      cleanupPromise.then((cleanup) => {
+        if (cleanup) cleanup();
+      });
     };
-  }, [isMounted, sketch]); // Dependency array ensures effect runs when mounted and sketch changes
+  }, []); // Dependency array ensures effect runs only on mount
 
-
-  return <P5jsContainer sketch={sketch} />;
+  return <div ref={canvasRef} style={{ width: '100%', height: '100vh' }} />; // Full screen canvas
 };
 
 export default P5Wrapper;

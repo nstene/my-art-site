@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div>
       <h1>My p5.js Sketch</h1>
-      <P5Wrapper sketch={MySketch}/>
+      <P5Wrapper />
     </div>
   );
 }
