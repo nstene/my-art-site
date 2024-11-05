@@ -99,9 +99,9 @@ const Navbar = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/classic-routes/TwoDPage3">
+                    <Link href="/classic-routes/TwoDPages/soundVisualizer">
                       <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                        Page 3
+                        Sound Visualizer
                       </p>
                     </Link>
                   </li>

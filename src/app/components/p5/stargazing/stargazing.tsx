@@ -96,14 +96,18 @@ export const MySketch = () => (p: p5) => {
 
     // populate stars
     p.translate(width/2, height/2);
-    p.rotate(p.radians(p.frameCount/50));
+    p.rotate(p.radians(p.frameCount/30));
     starGazing(star_positions, twinkling);
-    //({ x_pos, y_pos, x_speed, y_speed } = updatePositionMRU(x_pos, y_pos, x_speed, y_speed));
-    ({ x_pos, y_pos } = updatePositionNoise(x_pos, y_pos, t));
 
     p.translate(-width/2, -height/2);
+    //({ x_pos, y_pos, x_speed, y_speed } = updatePositionMRU(x_pos, y_pos, x_speed, y_speed));
+    ({ x_pos, y_pos } = updatePositionNoise(x_pos, y_pos, t));
     // Draw the circle, but the y position is changing each draw() iteration with framecount
     //makeCloud(x_pos, y_pos)
     makeCircle(x_pos, y_pos);
+  };
+
+  p.windowResized = () => {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
 };
