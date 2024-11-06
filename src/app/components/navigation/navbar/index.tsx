@@ -92,9 +92,9 @@ const Navbar = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/classic-routes/TwoDPages/rotatingStuff">
+                    <Link href="/classic-routes/TwoDPages/mergedProject">
                       <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                        Rotating Stuff
+                        Merged Project
                       </p>
                     </Link>
                   </li>

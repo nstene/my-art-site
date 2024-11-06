@@ -4,7 +4,6 @@ import Navigation from "../components/navigation/navbar";
 // Server-side session fetcher
 import { getServerSession } from "next-auth";
 import SessionProvider from "../components/SessionProvider";
-import MovingBanner from "../components/MovingBanner/MovingBanner";
 
 const bungeeShade = Bungee_Shade({
   weight: "400",
@@ -26,7 +25,6 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           <Navigation />
           {children}
-          <MovingBanner />
         </SessionProvider>
       </div>
     </>

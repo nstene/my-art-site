@@ -16,19 +16,19 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
 
     p.setup = () => {
       // Initiate the FFT object
-      fft = new p5.FFT()
+      fft = new p5.FFT();
       p.createCanvas(width, height);
 
       // Create play button
       const playButton = p.createButton('Play Music');
-      playButton.position(width/2, 100);
+      playButton.position(0, 100);
       playButton.mousePressed(() => {
         sound.play();
       });
       
       // Create pause button
       const pauseButton = p.createButton('Pause Music');
-      pauseButton.position(width/2, 150);
+      pauseButton.position(0, 150);
       pauseButton.mousePressed(() => {
         sound.pause();
       });
@@ -61,6 +61,11 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
       var mapMid      = p.map( mid, 0, 255, -150, 150 );
       var mapTreble   = p.map( treble, 0, 255, -200, 200 );
 
+      const red = p.map(p.sin(p.frameCount * 0.001), -1, 1, 100, 255);
+      const green = p.map(p.sin(p.frameCount * 0.002 + p.PI / 3), -1, 1, 100, 255);
+      const blue = p.map(p.sin(p.frameCount * 0.003 + (2 * p.PI) / 3), -1, 1, 100, 255);
+      
+
       // Define in how many pieces you want to divide the circle
       var pieces = 32;
 
@@ -71,7 +76,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
       p.translate( width/2, height/2 );
 
       // The centered circle
-      p.stroke( 0, 0, 255 );
+      p.stroke( red, green, blue );
       p.ellipse( 0, 0, radius );
 
       // For each piece draw a line
