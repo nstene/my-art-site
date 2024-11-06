@@ -4,6 +4,7 @@ import 'p5/lib/addons/p5.sound';
 export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
   const width = p.windowWidth;
   const height = p.windowHeight;
+  let isPlaying = false;
   
   // Stargazing stuff
   //___________________
@@ -41,11 +42,12 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     return { x_pos, y_pos }; 
   };
 
-  const makeCircle = (x_pos: number, y_pos: number) => {
+  const makeCircle = (x_pos: number, y_pos: number, radius: number) => {
     p.fill(0);
     p.stroke(255);
     p.strokeWeight(2);
-    p.circle(x_pos, y_pos, 200);
+    let diameter = 2*radius;
+    p.circle(x_pos, y_pos, diameter);
   };
 
   const starGazing = (star_positions: StarPosition[], twinkling: number) => {
@@ -71,13 +73,32 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
   let sound: p5.SoundFile;
   let fft: p5.FFT;
 
+  const rMax = Math.max(width/2, height/2);
+  var r = rMax;
+  let dr: number;
+
+  let ballSize = rMax;  // Initial ball size
+  let startTime = 0;   // To track when the ball shrinking starts
+
   p.preload = () => {
     sound = p.loadSound('/music/Pomegranates-020-NicolasJaar-Muse.wav');
   };
 
+  // Ease-out function: it returns a value between 0 and 1 that slows down over time
+  function easeOut(t: number) {
+    return 1 - Math.pow(1 - t, 3); // Cubic ease-out for smooth slowing down
+  }
+
   p.setup = () => {
+
+    const frameRate = 60
+    let soundLength = sound.duration();
+    const rMin = 0;
+    let frameTot = soundLength*frameRate;
+    dr = rMax/frameTot;
+
     p.createCanvas(width, height);
-    p.frameRate(60); // Typical animation fps. If I want the animation to speed up, increase ball speed
+    p.frameRate(frameRate); // Typical animation fps. If I want the animation to speed up, increase ball speed
     star_positions = generateRandomStars(n_stars, p.width/2, p.height/2);
     
     // Sound stuff
@@ -87,6 +108,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     playButton.position(0, 100);
     playButton.mousePressed(() => {
       sound.play();
+      isPlaying = true;
     });
     
     // Create pause button
@@ -94,18 +116,34 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     pauseButton.position(0, 150);
     pauseButton.mousePressed(() => {
       sound.pause();
+      isPlaying = false;
     });
 };
 
   p.draw = () => {    
     p.background(0, 16); // clear background at each iteration otherwise the circles will be drawn on top of eachother. Also add some transparency for fading effects.
     
+    let ballSizeOld = ballSize;
+    if (isPlaying){
+        // Get the elapsed time since the music started
+        let elapsedTime = (p.millis() - startTime) / 1000;  // in seconds
+        let duration = sound.duration(); // Length of the music in seconds
+
+        // Calculate the percentage of the song that has elapsed
+        let progress = p.constrain(elapsedTime / duration, 0, 1);
+
+        // Use the easing function to calculate the ball's size
+        let easedProgress = easeOut(progress);  // This will make it shrink faster at first, then slow down
+        ballSize = p.map(easedProgress, 0, 1, rMax, 0); 
+    };
     // Credits
     p.push();
     p.noStroke();
     p.fill('white');
     const text = "Jaar, Nicolas. 'Muse' Pomegranates. https://www.jaar.site/";
     p.text(text, 0, height);
+    p.text(p.round(ballSizeOld - ballSize), 0, height/2);
+    p.text(ballSize, 0, 250);
     p.pop();
 
     // SOUND STUFF
@@ -133,11 +171,11 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     starGazing(star_positions, twinkling);
 
     p.translate(-width/2, -height/2);
-    //({ x_pos, y_pos, x_speed, y_speed } = updatePositionMRU(x_pos, y_pos, x_speed, y_speed));
     ({ x_pos, y_pos } = updatePositionNoise(x_pos, y_pos, t));
-    // Draw the circle, but the y position is changing each draw() iteration with framecount
-    //makeCloud(x_pos, y_pos)
-    makeCircle(x_pos, y_pos);
+    if (isPlaying) {
+        r -= dr
+    };
+    makeCircle(x_pos, y_pos, ballSize);
   };
 
   p.windowResized = () => {
