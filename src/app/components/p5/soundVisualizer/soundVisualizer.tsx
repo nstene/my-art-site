@@ -1,6 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import p5 from 'p5';
+import 'p5/lib/addons/p5.sound';
 
 export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     const width = p.windowWidth;
@@ -15,32 +16,78 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
 
     p.setup = () => {
       // Initiate the FFT object
-      //fft = new p.FFT()
+      fft = new p5.FFT()
       p.createCanvas(width, height);
+
+      // Create play button
       const playButton = p.createButton('Play Music');
-      playButton.position(width/2, height/2);
+      playButton.position(width/2, 100);
       playButton.mousePressed(() => {
         sound.play();
-    });
+      });
+      
+      // Create pause button
+      const pauseButton = p.createButton('Pause Music');
+      pauseButton.position(width/2, 150);
+      pauseButton.mousePressed(() => {
+        sound.pause();
+      });
     };
 
     p.draw = () => {    
-      
-      p.fill('white');
-      p.text('Hello, p5.js!', p.width/2, p.height/2);
+
+      p.background(0, 5);
+      p.noFill();
 
       // Run the analysis, while the audio is playing
-      //fft.analyze();
+      // The FFT algorithm decomposes the audio signal into different frequency components
+      fft.analyze();
 
       // Get different values for different frequency ranges
       // -----------------------------------------------------
       // p5.sound comes with predefined keywords, 
       // but giving getEnergy() 2 numbers instead of a keyword 
       // you could use your custom range if needed
-      //var bass    = fft.getEnergy( "bass" );
-      //var treble  = fft.getEnergy( "treble" );
-      //var mid     = fft.getEnergy( "mid" );     
-      //var custom  = fft.getEnergy( 100, 200 );
+
+      // getEnergy measures the energy (or intensity) within a specified frequency range
+      // It is the Root Mean Square energy for a specified frequency range
+      // The RMS values are normalized to 0-255 range for easy use in visual mappings
+      var bass    = fft.getEnergy( "bass" );
+      var treble  = fft.getEnergy( "treble" );
+      var mid     = fft.getEnergy( "mid" );     
+      var custom  = fft.getEnergy( 100, 200 );
+
+      var mapBass     = p.map( bass, 0, 255, -100, 100 );
+      var mapMid      = p.map( mid, 0, 255, -150, 150 );
+      var mapTreble   = p.map( treble, 0, 255, -200, 200 );
+
+      // Define in how many pieces you want to divide the circle
+      var pieces = 32;
+
+      // Circle's radius
+      var radius = 400;
+
+      // Move the origin to the center of the canvas
+      p.translate( width/2, height/2 );
+
+      // The centered circle
+      p.stroke( 0, 0, 255 );
+      p.ellipse( 0, 0, radius );
+
+      // For each piece draw a line
+      for( let i = 0; i < pieces; i++ ) {
+        
+        p.rotate( p.TWO_PI / pieces );
+    
+        // Draw the bass lines
+        p.line( mapBass, radius/2, 0, radius );
+        
+        // Draw the mid lines
+        p.line( mapMid, radius/2, 0, radius );    
+
+        // Draw the treble lines
+        p.line( mapTreble, radius/2, 0, radius );       
+      }
     };
 
     p.windowResized = () => {
