@@ -36,6 +36,14 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
 
     p.draw = () => {    
 
+      // Credits
+      p.push();
+      p.noStroke();
+      p.fill('white');
+      const text = "Jaar, Nicolas. 'Fight' Nymphs. https://www.jaar.site/";
+      p.text(text, 0, height);
+      p.pop();
+
       p.background(0, 5);
       p.noFill();
 
