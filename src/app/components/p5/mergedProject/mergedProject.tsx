@@ -74,26 +74,28 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
   let fft: p5.FFT;
 
   const rMax = Math.max(width/2, height/2);
+  const rMin = 1;
   var r = rMax;
   let dr: number;
+  var elapsedSongTime = 0;
+  const frameRate = 60
+  let isFinished = false;
 
   let ballSize = rMax;  // Initial ball size
-  let startTime = 0;   // To track when the ball shrinking starts
+  let speedFactor = 1;
 
   p.preload = () => {
     sound = p.loadSound('/music/Pomegranates-020-NicolasJaar-Muse.wav');
   };
 
   // Ease-out function: it returns a value between 0 and 1 that slows down over time
-  function easeOut(t: number) {
-    return 1 - Math.pow(1 - t, 3); // Cubic ease-out for smooth slowing down
+  function easeOut(t: number, exponent: number) {
+    return 1 - Math.pow(1 - t, exponent); // Cubic ease-out for smooth slowing down
   }
 
   p.setup = () => {
 
-    const frameRate = 60
     let soundLength = sound.duration();
-    const rMin = 0;
     let frameTot = soundLength*frameRate;
     dr = rMax/frameTot;
 
@@ -107,8 +109,10 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     const playButton = p.createButton('Play Music');
     playButton.position(0, 100);
     playButton.mousePressed(() => {
-      sound.play();
-      isPlaying = true;
+      if (!isPlaying){
+        sound.play();
+        isPlaying = true;
+      }
     });
     
     // Create pause button
@@ -123,18 +127,23 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
   p.draw = () => {    
     p.background(0, 16); // clear background at each iteration otherwise the circles will be drawn on top of eachother. Also add some transparency for fading effects.
     
-    let ballSizeOld = ballSize;
     if (isPlaying){
         // Get the elapsed time since the music started
-        let elapsedTime = (p.millis() - startTime) / 1000;  // in seconds
+        elapsedSongTime = sound.currentTime();  // in seconds
         let duration = sound.duration(); // Length of the music in seconds
 
         // Calculate the percentage of the song that has elapsed
-        let progress = p.constrain(elapsedTime / duration, 0, 1);
+        let progress = p.constrain(elapsedSongTime / duration, 0, 1);
 
         // Use the easing function to calculate the ball's size
-        let easedProgress = easeOut(progress);  // This will make it shrink faster at first, then slow down
-        ballSize = p.map(easedProgress, 0, 1, rMax, 0); 
+        let easedProgressRadius = easeOut(progress, 3);  // This will make it shrink faster at first, then slow down
+        let easedProgressSpeed = easeOut(progress, 1.1);
+        ballSize = p.map(easedProgressRadius, 0, 1, rMax, rMin); 
+
+        speedFactor = p.map(easedProgressSpeed, 0, 1, 1, 0); 
+        if (sound.currentTime() >= sound.duration() - 1){
+          isFinished = true;
+        }
     };
     // Credits
     p.push();
@@ -142,28 +151,16 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     p.fill('white');
     const text = "Jaar, Nicolas. 'Muse' Pomegranates. https://www.jaar.site/";
     p.text(text, 0, height);
-    p.text(p.round(ballSizeOld - ballSize), 0, height/2);
-    p.text(ballSize, 0, 250);
+    p.text(`Elapsed song time: ${p.round(elapsedSongTime)}`, 0, height/2);
+    p.text(speedFactor, 0, 250);
     p.pop();
 
     // SOUND STUFF
-    //if mapMid {
-      // let prevMid = mapMid     
-    //} else 
     fft.analyze();
-    var customBass  = fft.getEnergy( 20, 300 );
     var customMid     = fft.getEnergy( 300, 500 );     
-    
-    var mapBass     = p.map( customBass, 0, 255, 0, 100 );
     var mapMid      = p.map( customMid, 0, 255, 0, 100 );
 
-    //let smoothingFactor = 0.1; // A smaller number = smoother response
-    //let smoothedMid = p.lerp(prevMid, mapMid, smoothingFactor);
-    //prevMid = smoothedMid;
-    t += 0.00002*mapMid;
-    
-    //p.text(`bass:${p.round(mapBass)}`, 0, 300+25);
-    //p.text(`mid:${p.round(mapMid)}`, 0, 300+50);
+    t += 0.00002*mapMid*speedFactor;
 
     // populate stars
     p.translate(width/2, height/2);
@@ -172,10 +169,13 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
 
     p.translate(-width/2, -height/2);
     ({ x_pos, y_pos } = updatePositionNoise(x_pos, y_pos, t));
-    if (isPlaying) {
-        r -= dr
+
+    if (isFinished && p.random() > twinkling){
+      p.fill(100, 100);
+      makeCircle(x_pos, y_pos, ballSize);
+    } else if (!isFinished){
+      makeCircle(x_pos, y_pos, ballSize);
     };
-    makeCircle(x_pos, y_pos, ballSize);
   };
 
   p.windowResized = () => {
