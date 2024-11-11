@@ -13,7 +13,7 @@ export default async function TripReportsPage() {
     return (
         <div>
             Welcome to the trip reports page! <br />
-            You will only see this if you're trusted. <br />
+            You will only see this if you&apos;re trusted. <br />
             Please be worthy of that trust.
         </div>
     )
