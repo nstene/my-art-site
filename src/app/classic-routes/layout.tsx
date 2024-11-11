@@ -23,8 +23,12 @@ export default async function RootLayout({
     <>
       <div className={`${bungeeShade.variable} antialiased`}>
         <SessionProvider session={session}>
-          <Navigation />
-          {children}
+          {/* Wrapping the navbar and children in a container */}
+          <div className="relative">
+            <Navigation />
+            {/* Children will be placed here and can be rendered behind the navbar */}
+            {children}
+          </div>
         </SessionProvider>
       </div>
     </>

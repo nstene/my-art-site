@@ -98,15 +98,17 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     let soundLength = sound.duration();
     let frameTot = soundLength*frameRate;
     dr = rMax/frameTot;
-
-    p.createCanvas(width, height);
+    
+    const canvas = p.createCanvas(p.windowWidth, window.innerHeight);
+    canvas.style('z-index', '0');
+    canvas.style('position', 'absolute');
     p.frameRate(frameRate); // Typical animation fps. If I want the animation to speed up, increase ball speed
     star_positions = generateRandomStars(n_stars, p.width/2, p.height/2);
     
     // Sound stuff
     fft = new p5.FFT(0.9, 512); // 512 is the number of bins. Increase for better resolution
     // Create play button
-    const playButton = p.createButton('Play Music');
+    const playButton = p.createButton('Play');
     playButton.position(0, 100);
     playButton.mousePressed(() => {
       if (!isPlaying){
@@ -116,7 +118,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     });
     
     // Create pause button
-    const pauseButton = p.createButton('Pause Music');
+    const pauseButton = p.createButton('Pause');
     pauseButton.position(0, 150);
     pauseButton.mousePressed(() => {
       sound.pause();
@@ -150,9 +152,10 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     p.noStroke();
     p.fill('white');
     const text = "Jaar, Nicolas. 'Muse' Pomegranates. https://www.jaar.site/";
-    p.text(text, 0, height);
-    p.text(`Elapsed song time: ${p.round(elapsedSongTime)}`, 0, height/2);
-    p.text(speedFactor, 0, 250);
+    p.text(text, 0, p.windowHeight - 50);
+    //p.text(`Elapsed song time: ${p.round(elapsedSongTime)}`, 0, height/2);
+    p.text(window.innerHeight, 0, 250);
+    p.text(p.windowHeight, 0, 300);
     p.pop();
 
     // SOUND STUFF

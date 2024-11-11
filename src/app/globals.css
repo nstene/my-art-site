@@ -20,4 +20,9 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-space-mono);
+  overflow: hidden;
 }
+
+/*
+canvas {
+  border: 2px solid red; /* To visualize the canvas */

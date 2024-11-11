@@ -46,7 +46,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="w-full h-30 bg-transparent sticky top-0">
+      <div className="absolute w-full h-30 bg-transparent backdrop-blur-sm z-50 sticky top-0">
         <div className="container mx-auto px-4 h-full">
           <div className="flex justify-between items-center h-full">
             <ul className="hidden md:flex gap-x-6 text-white">
@@ -102,6 +102,13 @@ const Navbar = () => {
                     <Link href="/classic-routes/TwoDPages/soundVisualizer">
                       <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
                         Sound Visualizer
+                      </p>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/classic-routes/TwoDPages/slime">
+                      <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                        Slime
                       </p>
                     </Link>
                   </li>
