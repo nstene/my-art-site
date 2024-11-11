@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useRef } from 'react';
 import { MySketch } from './mergedProject';
+import p5 from "p5";
 
 const P5Wrapper = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -21,8 +22,8 @@ const P5Wrapper = () => {
 
         // Create a new p5 instance and pass the sketch and the canvas reference
         if (canvasRef.current) {
-          const p5Instance = new p5Module.default((p: any) => {
-            MySketch()(p, canvasRef.current!); // Non-null assertion operator
+          const p5Instance = new p5Module.default((p: p5) => {
+            MySketch()(p); // Non-null assertion operator
           }, canvasRef.current);
 
           // Return cleanup function
