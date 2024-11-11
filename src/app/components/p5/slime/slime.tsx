@@ -11,7 +11,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
   const gridState = new Array(rows);
 
   const computeNewGridState = (gridState: Array<number>) => {
-        
+        let newGridState =  gridState;
     return { newGridState }; 
   };
 
