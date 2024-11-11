@@ -10,12 +10,12 @@
   },
   "dependencies": {
     "next": "15.0.1",
+    "next-auth": "^4.24.10",
     "p5": "^1.11.1",
     "react": "19.0.0-rc-69d4b800-20241021",
     "react-dom": "19.0.0-rc-69d4b800-20241021",
     "three": "^0.169.0",
-    "webpack": "^5.96.1",
-    "next-auth": "^4.22.1"
+    "webpack": "^5.96.1"
   },
   "devDependencies": {
     "@types/node": "^20",
