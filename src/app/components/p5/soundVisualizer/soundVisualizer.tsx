@@ -1,9 +1,8 @@
 'use client';
-import { useEffect } from 'react';
 import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
 
-export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
+export const MySketch = () => (p: p5) => {
     const width = p.windowWidth;
     const height = p.windowHeight;
 
@@ -60,14 +59,14 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
       // getEnergy measures the energy (or intensity) within a specified frequency range
       // It is the Root Mean Square energy for a specified frequency range
       // The RMS values are normalized to 0-255 range for easy use in visual mappings
-      var bass    = fft.getEnergy( "bass" );
-      var treble  = fft.getEnergy( "treble" );
-      var mid     = fft.getEnergy( "mid" );     
-      var custom  = fft.getEnergy( 100, 200 );
+      let bass    = fft.getEnergy( "bass" );
+      let treble  = fft.getEnergy( "treble" );
+      let mid     = fft.getEnergy( "mid" );     
+      // let custom  = fft.getEnergy( 100, 200 );
 
-      var mapBass     = p.map( bass, 0, 255, -100, 100 );
-      var mapMid      = p.map( mid, 0, 255, -150, 150 );
-      var mapTreble   = p.map( treble, 0, 255, -200, 200 );
+      let mapBass     = p.map( bass, 0, 255, -100, 100 );
+      let mapMid      = p.map( mid, 0, 255, -150, 150 );
+      let mapTreble   = p.map( treble, 0, 255, -200, 200 );
 
       const red = p.map(p.sin(p.frameCount * 0.001), -1, 1, 100, 255);
       const green = p.map(p.sin(p.frameCount * 0.002 + p.PI / 3), -1, 1, 100, 255);
@@ -75,10 +74,10 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
       
 
       // Define in how many pieces you want to divide the circle
-      var pieces = 32;
+      let pieces = 32;
 
       // Circle's radius
-      var radius = 400;
+      let radius = 400;
 
       // Move the origin to the center of the canvas
       p.translate( width/2, height/2 );

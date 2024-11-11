@@ -1,7 +1,7 @@
 import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
 
-export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
+export const MySketch = () => (p: p5) => {
   const width = p.windowWidth;
   const height = p.windowHeight;
   let isPlaying = false;
@@ -46,7 +46,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     p.fill(0);
     p.stroke(255);
     p.strokeWeight(2);
-    let diameter = 2*radius;
+    const diameter = 2*radius;
     p.circle(x_pos, y_pos, diameter);
   };
 
@@ -57,9 +57,9 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
       };
       const x = star_positions[i].x;
       const y = star_positions[i].y;
-      let size = p.random(1, 2);
-      let alpha = p.random(100, 255); // Random alpha for fading effect
-      let brightness = p.random(100, 255);
+      const size = p.random(1, 2);
+      const alpha = p.random(100, 255); // Random alpha for fading effect
+      const brightness = p.random(100, 255);
       p.fill(brightness, alpha); // Apply brightness and alpha for twinkling
       p.circle(x, y, size)
     };
@@ -75,9 +75,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
 
   const rMax = Math.max(width/2, height/2);
   const rMin = 1;
-  var r = rMax;
-  let dr: number;
-  var elapsedSongTime = 0;
+  let elapsedSongTime = 0;
   const frameRate = 60
   let isFinished = false;
 
@@ -95,10 +93,9 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
 
   p.setup = () => {
 
-    let soundLength = sound.duration();
-    let frameTot = soundLength*frameRate;
-    dr = rMax/frameTot;
-    
+    //const soundLength = sound.duration();
+    //const frameTot = soundLength*frameRate;
+        
     const canvas = p.createCanvas(p.windowWidth, window.innerHeight);
     canvas.style('z-index', '0');
     canvas.style('position', 'absolute');
@@ -132,14 +129,14 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     if (isPlaying){
         // Get the elapsed time since the music started
         elapsedSongTime = sound.currentTime();  // in seconds
-        let duration = sound.duration(); // Length of the music in seconds
+        const duration = sound.duration(); // Length of the music in seconds
 
         // Calculate the percentage of the song that has elapsed
-        let progress = p.constrain(elapsedSongTime / duration, 0, 1);
+        const progress = p.constrain(elapsedSongTime / duration, 0, 1);
 
         // Use the easing function to calculate the ball's size
-        let easedProgressRadius = easeOut(progress, 3);  // This will make it shrink faster at first, then slow down
-        let easedProgressSpeed = easeOut(progress, 1.1);
+        const easedProgressRadius = easeOut(progress, 3);  // This will make it shrink faster at first, then slow down
+        const easedProgressSpeed = easeOut(progress, 1.1);
         ballSize = p.map(easedProgressRadius, 0, 1, rMax, rMin); 
 
         speedFactor = p.map(easedProgressSpeed, 0, 1, 1, 0); 
@@ -160,8 +157,8 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
 
     // SOUND STUFF
     fft.analyze();
-    var customMid     = fft.getEnergy( 300, 500 );     
-    var mapMid      = p.map( customMid, 0, 255, 0, 100 );
+    let customMid     = fft.getEnergy( 300, 500 );     
+    let mapMid      = p.map( customMid, 0, 255, 0, 100 );
 
     t += 0.00002*mapMid*speedFactor;
 

@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
 import { Space_Mono } from "next/font/google";
 import "./globals.css";
-import Navigation from "./components/navigation/navbar";
 // Server-side session fetcher
 import { getServerSession } from "next-auth";
 import SessionProvider from "./components/SessionProvider";

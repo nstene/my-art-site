@@ -21,9 +21,9 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
   let sound: p5.SoundFile;
   let fft: p5.FFT;
 
-  var elapsedSongTime = 0;
+  //let elapsedSongTime = 0;
   const frameRate = 60
-  let isFinished = false;
+  //let isFinished = false;
 
   p.preload = () => {
     sound = p.loadSound('/music/Pomegranates-020-NicolasJaar-Muse.wav');

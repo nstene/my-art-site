@@ -5,8 +5,8 @@ export const MySketch = () => (p: p5) => {
   const height = p.windowHeight;
   let y_pos = width*Math.random();
   let x_pos = height*Math.random();
-  let y_speed = Math.sign(0.5 - Math.random()) * 5;
-  let x_speed = Math.sign(0.5 - Math.random()) * 5;
+  //let y_speed = Math.sign(0.5 - Math.random()) * 5;
+  //let x_speed = Math.sign(0.5 - Math.random()) * 5;
 
   interface StarPosition {
     x: number;
@@ -32,6 +32,7 @@ export const MySketch = () => (p: p5) => {
     return star_positions;
   };
 
+  /*
   const updatePositionMRU = (x_pos: number, y_pos: number, x_speed: number, y_speed:number) => {
     if (x_pos >= p.width || x_pos <= 0) {
       x_speed *= -1; // Reverse direction if hitting boundaries
@@ -44,6 +45,7 @@ export const MySketch = () => (p: p5) => {
     y_pos += y_speed; // Update position based on speed
     return { x_pos, y_pos, x_speed, y_speed }; // Return updated position and speed
   };
+  */
 
   const updatePositionNoise = (x_pos: number, y_pos: number, t: number) => {
     x_pos = width * p.noise(t + 15); 
@@ -51,6 +53,7 @@ export const MySketch = () => (p: p5) => {
     return { x_pos, y_pos }; 
   };
 
+  /*
   const makeCloud = (x_pos: number, y_pos: number) => {
     for (let i = 255; i >= 0; i -= 1) {
       p.fill(255 - i); // White at the center (i = 255) to black at the edge (i = 0)
@@ -59,6 +62,7 @@ export const MySketch = () => (p: p5) => {
       t += 0.01
     };
   };
+  */
 
   const makeCircle = (x_pos: number, y_pos: number) => {
     p.fill(0);
@@ -75,9 +79,9 @@ export const MySketch = () => (p: p5) => {
       };
       const x = star_positions[i].x;
       const y = star_positions[i].y;
-      let size = p.random(1, 2);
-      let alpha = p.random(100, 255); // Random alpha for fading effect
-      let brightness = p.random(100, 255);
+      const size = p.random(1, 2);
+      const alpha = p.random(100, 255); // Random alpha for fading effect
+      const brightness = p.random(100, 255);
       p.fill(brightness, alpha); // Apply brightness and alpha for twinkling
       p.circle(x, y, size)
     };
