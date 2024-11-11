@@ -157,8 +157,8 @@ export const MySketch = () => (p: p5) => {
 
     // SOUND STUFF
     fft.analyze();
-    let customMid     = fft.getEnergy( 300, 500 );     
-    let mapMid      = p.map( customMid, 0, 255, 0, 100 );
+    const customMid     = fft.getEnergy( 300, 500 );     
+    const mapMid      = p.map( customMid, 0, 255, 0, 100 );
 
     t += 0.00002*mapMid*speedFactor;
 

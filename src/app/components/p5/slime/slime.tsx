@@ -1,7 +1,7 @@
 import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
 
-export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
+export const MySketch = () => (p: p5) => {
   const width = p.windowWidth;
   const height = p.windowHeight;
   let isPlaying = false;
@@ -11,7 +11,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
   const gridState = new Array(rows);
 
   const computeNewGridState = (gridState: Array<number>) => {
-        let newGridState =  gridState;
+        const newGridState =  gridState;
     return { newGridState }; 
   };
 
@@ -19,7 +19,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
   // _______________
 
   let sound: p5.SoundFile;
-  let fft: p5.FFT;
+  //let fft: p5.FFT;
 
   //let elapsedSongTime = 0;
   const frameRate = 60
@@ -31,7 +31,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
 
   p.setup = () => {
     
-    const canvas = p.createCanvas(p.windowWidth, window.innerHeight);
+    p.createCanvas(p.windowWidth, window.innerHeight);
     p.frameRate(frameRate); // Typical animation fps. If I want the animation to speed up, increase ball speed
 
     // Implement grid for internal activation logic
@@ -45,7 +45,7 @@ export const MySketch = () => (p: p5, parentRef: HTMLDivElement) => {
     gridState[Math.round(rows/2) + 1][Math.round(cols/2) - 1] = 1;
     
     // Sound stuff
-    fft = new p5.FFT(0.9, 512); // 512 is the number of bins. Increase for better resolution
+    //fft = new p5.FFT(0.9, 512); // 512 is the number of bins. Increase for better resolution
     // Create play button
     const playButton = p.createButton('Play');
     playButton.position(0, 100);

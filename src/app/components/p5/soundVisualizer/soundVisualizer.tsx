@@ -59,14 +59,14 @@ export const MySketch = () => (p: p5) => {
       // getEnergy measures the energy (or intensity) within a specified frequency range
       // It is the Root Mean Square energy for a specified frequency range
       // The RMS values are normalized to 0-255 range for easy use in visual mappings
-      let bass    = fft.getEnergy( "bass" );
-      let treble  = fft.getEnergy( "treble" );
-      let mid     = fft.getEnergy( "mid" );     
+      const bass    = fft.getEnergy( "bass" );
+      const treble  = fft.getEnergy( "treble" );
+      const mid     = fft.getEnergy( "mid" );     
       // let custom  = fft.getEnergy( 100, 200 );
 
-      let mapBass     = p.map( bass, 0, 255, -100, 100 );
-      let mapMid      = p.map( mid, 0, 255, -150, 150 );
-      let mapTreble   = p.map( treble, 0, 255, -200, 200 );
+      const mapBass     = p.map( bass, 0, 255, -100, 100 );
+      const mapMid      = p.map( mid, 0, 255, -150, 150 );
+      const mapTreble   = p.map( treble, 0, 255, -200, 200 );
 
       const red = p.map(p.sin(p.frameCount * 0.001), -1, 1, 100, 255);
       const green = p.map(p.sin(p.frameCount * 0.002 + p.PI / 3), -1, 1, 100, 255);
@@ -74,10 +74,10 @@ export const MySketch = () => (p: p5) => {
       
 
       // Define in how many pieces you want to divide the circle
-      let pieces = 32;
+      const pieces = 32;
 
       // Circle's radius
-      let radius = 400;
+      const radius = 400;
 
       // Move the origin to the center of the canvas
       p.translate( width/2, height/2 );
