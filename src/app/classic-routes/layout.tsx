@@ -1,6 +1,7 @@
 import { Bungee_Shade } from 'next/font/google' 
 import "../globals.css";
-import Navigation from "../components/navigation/navbar";
+import DesktopNavbar from "../components/navigation/DesktopNavbar";
+import MobileNavbar from "../components/navigation/MobileNavbar";
 // Server-side session fetcher
 import { getServerSession } from "next-auth";
 import SessionProvider from "../components/SessionProvider";
@@ -25,7 +26,8 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           {/* Wrapping the navbar and children in a container */}
           <div className="relative">
-            <Navigation />
+            <DesktopNavbar />
+            <MobileNavbar />
             {/* Children will be placed here and can be rendered behind the navbar */}
             {children}
           </div>
