@@ -87,7 +87,11 @@ const Navbar = () => {
               )}
             </li>
             </ul>
-            <AuthButton1 />
+
+            {/* Authentication Button */}
+            <div className="ml-auto">
+              <AuthButton1 />
+            </div>
           </div>
         </div>
       </div>
