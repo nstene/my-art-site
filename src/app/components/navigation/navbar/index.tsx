@@ -17,7 +17,6 @@ function AuthButton1() {
   }
   return (
     <>
-      Not signed in
       <button className="p-2 rounded-full bg-transparent hover:bg-[radial-gradient(circle,rgba(128,128,128,1),rgba(128,128,128,0))] transition duration-300 ease-in-out" onClick={() => signIn()}>Sign in</button>
     </>
   );
@@ -50,27 +49,6 @@ const Navbar = () => {
         <div className="container mx-auto px-4 h-full">
           <div className="flex justify-between items-center h-full">
             <ul className="hidden md:flex gap-x-6 text-white">
-              <li>
-                <Link href="/classic-routes/presentation">
-                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                    Presentation
-                  </p>
-                </Link>
-              </li>
-              <li>
-                <Link href="/classic-routes/Journal">
-                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                    Journal
-                  </p>
-                </Link>
-              </li>
-              <li>
-                <Link href="/classic-routes/ThreeDPage">
-                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                    3D Artworks
-                  </p>
-                </Link>
-              </li>
               <li
                 onMouseEnter={handleMouseEnter} 
                 onMouseLeave={handleMouseLeave} 
@@ -85,16 +63,9 @@ const Navbar = () => {
               {isDropdownOpen && (
                 <ul className="absolute left-0 mt-2 w-48 bg-transparent text-white shadow-lg">
                   <li>
-                    <Link href="/classic-routes/TwoDPages/stargazing">
-                      <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                        Stargazing
-                      </p>
-                    </Link>
-                  </li>
-                  <li>
                     <Link href="/classic-routes/TwoDPages/mergedProject">
                       <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                        Merged Project
+                        Stargazing
                       </p>
                     </Link>
                   </li>
@@ -115,20 +86,6 @@ const Navbar = () => {
                 </ul>
               )}
             </li>
-              <li>
-                <Link href="/classic-routes/trip-reports">
-                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                    Trip Reports
-                  </p>
-                </Link>
-              </li>
-              <li>
-                <Link href="/classic-routes/signup">
-                  <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                    Access Requests
-                  </p>
-                </Link>
-              </li>
             </ul>
             <AuthButton1 />
           </div>
