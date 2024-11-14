@@ -1,10 +1,16 @@
-// `app/presentation/page.tsx is the UI for the `/dashboard` url
 export default function Page() {
-    return ( 
-        <>
-            <h1>
-                Hello, this is my presentation page!
-            </h1>
-        </>
-    )
-}
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh', 
+        textAlign: 'center',
+        padding: '20px'
+      }}>
+        <h1>
+          Welcome. This is a project under construction, any recommendation is appreciated: ouroboros.website@gmail.com
+        </h1>
+      </div>
+    );
+  }
