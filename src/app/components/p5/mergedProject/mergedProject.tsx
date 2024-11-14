@@ -91,10 +91,20 @@ export const MySketch = () => (p: p5) => {
     return 1 - Math.pow(1 - t, exponent); // Cubic ease-out for smooth slowing down
   }
 
-  p.setup = () => {
+  let playPauseButton: p5.Element;
+  function togglePlayPause() {
+    if (isPlaying) {
+      sound.pause();
+      playPauseButton.html('Play'); // Update button text to "Play"
+      isPlaying = false;
+    } else {
+      sound.play();
+      playPauseButton.html('Pause'); // Update button text to "Pause"
+      isPlaying = true;
+    }
+  }
 
-    //const soundLength = sound.duration();
-    //const frameTot = soundLength*frameRate;
+  p.setup = () => {
         
     const canvas = p.createCanvas(p.windowWidth, window.innerHeight);
     canvas.style('z-index', '0');
@@ -105,23 +115,10 @@ export const MySketch = () => (p: p5) => {
     // Sound stuff
     fft = new p5.FFT(0.9, 512); // 512 is the number of bins. Increase for better resolution
     // Create play button
-    const playButton = p.createButton('Play');
-    playButton.position(0, 100);
-    playButton.mousePressed(() => {
-      if (!isPlaying){
-        sound.play();
-        isPlaying = true;
-      }
-    });
-    
-    // Create pause button
-    const pauseButton = p.createButton('Pause');
-    pauseButton.position(0, 150);
-    pauseButton.mousePressed(() => {
-      sound.pause();
-      isPlaying = false;
-    });
-};
+    playPauseButton = p.createButton('Play');
+    playPauseButton.position(0, 100);
+    playPauseButton.mousePressed(togglePlayPause);
+  };
 
   p.draw = () => {    
     p.background(0, 16); // clear background at each iteration otherwise the circles will be drawn on top of eachother. Also add some transparency for fading effects.
@@ -150,9 +147,6 @@ export const MySketch = () => (p: p5) => {
     p.fill('white');
     const text = "Jaar, Nicolas. 'Muse' Pomegranates. https://www.jaar.site/";
     p.text(text, 0, p.windowHeight - 50);
-    //p.text(`Elapsed song time: ${p.round(elapsedSongTime)}`, 0, height/2);
-    p.text(window.innerHeight, 0, 250);
-    p.text(p.windowHeight, 0, 300);
     p.pop();
 
     // SOUND STUFF

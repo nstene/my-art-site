@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "mathjs": "^13.2.1",
+    "@heroicons/react": "^2.1.5",
     "next": "15.0.1",
     "next-auth": "^4.24.10",
     "p5": "^1.11.1",
