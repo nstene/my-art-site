@@ -5,6 +5,7 @@ export const MySketch = () => (p: p5) => {
   const width = p.windowWidth;
   const height = p.windowHeight;
   let isPlaying = false;
+  let fullscreenButton: p5.Element;
   
   // Stargazing stuff
   //___________________
@@ -86,6 +87,11 @@ export const MySketch = () => (p: p5) => {
     sound = p.loadSound('/music/Pomegranates-020-NicolasJaar-Muse.wav');
   };
 
+  function toggleFullScreen() {
+    let isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
+    p.fullscreen(!isFullScreen); // Toggle full-screen mode
+  }
+
   // Ease-out function: it returns a value between 0 and 1 that slows down over time
   function easeOut(t: number, exponent: number) {
     return 1 - Math.pow(1 - t, exponent); // Cubic ease-out for smooth slowing down
@@ -112,6 +118,11 @@ export const MySketch = () => (p: p5) => {
     p.frameRate(frameRate); // Typical animation fps. If I want the animation to speed up, increase ball speed
     star_positions = generateRandomStars(n_stars, p.width/2, p.height/2);
     
+    // Create button for full screen mode
+    fullscreenButton = p.createButton('Full Screen');
+    fullscreenButton.position(0, 150);
+    fullscreenButton.mousePressed(toggleFullScreen);
+
     // Sound stuff
     fft = new p5.FFT(0.9, 512); // 512 is the number of bins. Increase for better resolution
     // Create play button
@@ -146,7 +157,7 @@ export const MySketch = () => (p: p5) => {
     p.noStroke();
     p.fill('white');
     const text = "Jaar, Nicolas. 'Muse' Pomegranates. https://www.jaar.site/";
-    p.text(text, 0, p.windowHeight - 50);
+    p.text(text, 0, p.windowHeight - 5);
     p.pop();
 
     // SOUND STUFF

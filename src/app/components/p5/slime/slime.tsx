@@ -7,19 +7,20 @@ export const MySketch = () => (p: p5) => {
   const pixelsWidth = Math.round(width / 2);
   const pixelsHeight = Math.round(height / 2);
   let isPlaying = false;
-  const speed = 20;
   const dt = 0.2;
   let nAgentsInput: p5.Element;
   let randomnessInput: p5.Element;
   let visionInput: p5.Element;
+  let speedInput: p5.Element;
   let button: p5.Element;
+  let fullscreenButton: p5.Element;
   let nAgents: number;
   let maxRandomAngle: number;
   let vision: number;
+  let speed: number;
   const evaporationSpeed = 0.05;
   const turnSpeed = 2;
   const frameRate = 24;
-  let hasReset = false;
 
   const black = [0, 0, 0];
   const white = [255, 255, 255];
@@ -67,14 +68,14 @@ export const MySketch = () => (p: p5) => {
 
     sense(trailMap: Array<[]>, vision: number, sensorAngleOffset: number) {
       let sensorSize = Math.round(vision / 2)
-      let sensorAngle = this.angle + sensorAngleOffset;
-      let sensorCenterX = this.position.x + Math.cos(sensorAngle) * sensorSize;
-      let sensorCenterY = this.position.y + Math.sin(sensorAngle) * sensorSize;
+      const sensorAngle = this.angle + sensorAngleOffset;
+      const sensorCenterX = this.position.x + Math.cos(sensorAngle) * sensorSize;
+      const sensorCenterY = this.position.y + Math.sin(sensorAngle) * sensorSize;
       let sum = 0;
       for (let offsetX = -sensorSize; offsetX <= sensorSize; offsetX++) {
         for (let offsetY = 1; offsetY <= vision; offsetY++) {
-          let sampleY = Math.round(sensorCenterY) + offsetY;
-          let sampleX = Math.round(sensorCenterX) + offsetX;
+          const sampleY = Math.round(sensorCenterY) + offsetY;
+          const sampleX = Math.round(sensorCenterX) + offsetX;
 
           if (sampleX >= 0 && sampleX < pixelsWidth && sampleY >= 0 && sampleY < pixelsHeight) {
             sum = + (trailMap[sampleY][sampleX][0] + trailMap[sampleY][sampleX][1] + trailMap[sampleY][sampleX][2]) / 3;
@@ -103,7 +104,7 @@ export const MySketch = () => (p: p5) => {
   };
 
   // Create image specifying number of pixels in each dimension
-  let img = p.createImage(pixelsWidth, pixelsHeight);
+  const img = p.createImage(pixelsWidth, pixelsHeight);
 
   let playPauseButton: p5.Element;
   function togglePlayPause() {
@@ -122,6 +123,7 @@ export const MySketch = () => (p: p5) => {
     nAgents = Number(nAgentsInput.value());
     maxRandomAngle = Number(randomnessInput.value());
     vision = Number(visionInput.value());
+    speed = Number(speedInput.value());
 
     // Clear the existing agents array
     agents = [];
@@ -141,13 +143,17 @@ export const MySketch = () => (p: p5) => {
     if (!isPlaying) {
       togglePlayPause();
     }
+  }
 
-    hasReset = false;
+  function toggleFullScreen() {
+    let isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
+    p.fullscreen(!isFullScreen); // Toggle full-screen mode
   }
 
   let isInputClicked = false;
   let isVisionInputClicked = false;
   let isRandomnessInputClicked = false;
+  let isSpeedInputClicked = false;
 
   p.setup = () => {
 
@@ -188,7 +194,7 @@ export const MySketch = () => (p: p5) => {
       }
     });
     visionInput.elt.onblur = () => {
-      const inputValue = String(nAgentsInput.value()); // Cast the value to a string
+      const inputValue = String(visionInput.value()); // Cast the value to a string
       if (inputValue.trim() === '') {
         visionInput.value('Agent vision field'); // Reset to default if empty
         isVisionInputClicked = false; // Reset the flag so user can clear it again
@@ -196,7 +202,7 @@ export const MySketch = () => (p: p5) => {
     };
 
     randomnessInput = p.createInput();
-    randomnessInput.value('Maximum movement randomness in degrees');
+    randomnessInput.value('Angle randomness (deg)');
     randomnessInput.position(0, 500);
     randomnessInput.style('color', 'white'); // Change text color to white
     randomnessInput.style('background-color', 'black'); // Change background color to black
@@ -208,16 +214,36 @@ export const MySketch = () => (p: p5) => {
       }
     });
     randomnessInput.elt.onblur = () => {
-      const inputValue = String(nAgentsInput.value()); // Cast the value to a string
+      const inputValue = String(randomnessInput.value()); // Cast the value to a string
       if (inputValue.trim() === '') {
         randomnessInput.value('Maximum movement randomness in degrees'); // Reset to default if empty
         isRandomnessInputClicked = false; // Reset the flag so user can clear it again
       }
     };
 
+    speedInput = p.createInput();
+    speedInput.value('Agent speed');
+    speedInput.position(0, 550);
+    speedInput.style('color', 'white'); // Change text color to white
+    speedInput.style('background-color', 'black'); // Change background color to black
+    speedInput.style('border', '1px solid white');
+    speedInput.mousePressed(() => {
+      if (!isSpeedInputClicked) {
+        speedInput.value(''); // Clear the input field on first click
+        isSpeedInputClicked = false; // Set flag to prevent further clearing
+      }
+    });
+    speedInput.elt.onblur = () => {
+      const inputValue = String(speedInput.value()); // Cast the value to a string
+      if (inputValue.trim() === '') {
+        speedInput.value('Agent speed'); // Reset to default if empty
+        isSpeedInputClicked = false; // Reset the flag so user can clear it again
+      }
+    };
+
     // Create a button to submit the input
     button = p.createButton('Submit');
-    button.position(0, 550);
+    button.position(0, 600);
     button.mousePressed(start);
 
     // Sound stuff
@@ -232,13 +258,16 @@ export const MySketch = () => (p: p5) => {
     resetButton.position(0, 200);
     resetButton.mousePressed(() => {
       togglePlayPause();
-      hasReset = true;
       trailMap = new Array(pixelsHeight).fill(0).map(() => new Array(pixelsWidth).fill(black));
       diffusedTrailMap = new Array(pixelsHeight).fill(0).map(() => new Array(pixelsWidth).fill(black));
-      //start();
       p.clear();
       p.background(0); // Ensure the background is solid black after reset
     });
+
+    // Create button for full screen mode
+    fullscreenButton = p.createButton('Full Screen');
+    fullscreenButton.position(0, 150);
+    fullscreenButton.mousePressed(toggleFullScreen);
 
     // Create a number of agents that will travel around, randomly distributed across the map
     for (let i = 0; i < nAgents; i++) {
@@ -258,7 +287,7 @@ export const MySketch = () => (p: p5) => {
     p.noStroke();
     p.fill('white');
     const text = "Jaar, Nicolas. 'No One Is Looking at U' Nymphs. https://www.jaar.site/";
-    p.text(text, 0, height);
+    p.text(text, 0, p.windowHeight - 5);
     p.pop();
 
     if (p.keyIsPressed && p.key === ' ') {
@@ -272,8 +301,8 @@ export const MySketch = () => (p: p5) => {
       return;
     }
 
-    for (let agent of agents) {
-      let direction = new Direction(Math.cos(agent.angle), Math.sin(agent.angle));
+    for (const agent of agents) {
+      const direction = new Direction(Math.cos(agent.angle), Math.sin(agent.angle));
 
       let newX = agent.position.x + direction.x * speed * dt;
       let newY = agent.position.y + direction.y * speed * dt;
@@ -289,7 +318,7 @@ export const MySketch = () => (p: p5) => {
     };
 
     // Process trail map for evaporation
-    let evaporatedTrailMap = trailMap;
+    const evaporatedTrailMap = trailMap;
     for (let i = 0; i < pixelsHeight; i++) {
       for (let j = 0; j < pixelsWidth; j++) {
         evaporatedTrailMap[i][j] = [Math.max(0, trailMap[i][j][0] - evaporationSpeed * dt),
@@ -299,7 +328,7 @@ export const MySketch = () => (p: p5) => {
     }
 
     // Process trail map for blurring
-    let diffusedEvaporatedTrailMap = trailMap;
+    const diffusedEvaporatedTrailMap = trailMap;
     // Loop over all pixel
     for (let i = 0; i < pixelsHeight; i++) {
       for (let j = 0; j < pixelsWidth; j++) {
@@ -309,8 +338,8 @@ export const MySketch = () => (p: p5) => {
         let blurredVal3 = 0;
         for (let offsetX = - 1; offsetX <= 1; offsetX++) {
           for (let offsetY = - 1; offsetY <= 1; offsetY++) {
-            let sampleY = i + offsetY;
-            let sampleX = j + offsetX;
+            const sampleY = i + offsetY;
+            const sampleX = j + offsetX;
             if (sampleX >= 0 && sampleX < pixelsWidth && sampleY >= 0 && sampleY < pixelsHeight) {
               blurredVal1 = + evaporatedTrailMap[sampleY][sampleX][0];
               blurredVal2 = + evaporatedTrailMap[sampleY][sampleX][1];
@@ -319,9 +348,9 @@ export const MySketch = () => (p: p5) => {
           }
         }
 
-        let diffusedVal1 = lerp(trailMap[i][j][0], blurredVal1 / 2, evaporationSpeed * dt);
-        let diffusedVal2 = lerp(trailMap[i][j][1], blurredVal2 / 2, evaporationSpeed * dt);
-        let diffusedVal3 = lerp(trailMap[i][j][2], blurredVal3 / 2, evaporationSpeed * dt);
+        const diffusedVal1 = lerp(trailMap[i][j][0], blurredVal1 / 2, evaporationSpeed * dt);
+        const diffusedVal2 = lerp(trailMap[i][j][1], blurredVal2 / 2, evaporationSpeed * dt);
+        const diffusedVal3 = lerp(trailMap[i][j][2], blurredVal3 / 2, evaporationSpeed * dt);
 
         diffusedEvaporatedTrailMap[i][j] = [Math.max(0, diffusedVal1 - evaporationSpeed * dt),
         Math.max(0, diffusedVal2 - evaporationSpeed * dt),
@@ -331,7 +360,7 @@ export const MySketch = () => (p: p5) => {
 
     img.loadPixels();
 
-    for (let agent of agents) {
+    for (const agent of agents) {
       // Steer direction based on the trails
       let sensorAngleOffset = 30;
       const weightLeft = agent.sense(diffusedEvaporatedTrailMap, vision, sensorAngleOffset);
@@ -339,7 +368,7 @@ export const MySketch = () => (p: p5) => {
       const weightStraight = agent.sense(diffusedEvaporatedTrailMap, vision, 0);
 
       // Add a tiny bit of randomness to direction (max 10 degrees)
-      let noise = Math.random() * maxRandomAngle / 360 * p.TWO_PI
+      const noise = Math.random() * maxRandomAngle / 360 * p.TWO_PI
       if (weightStraight > weightLeft && weightStraight > weightRight) {
         agent.angle += noise;
       } else if (weightLeft > weightStraight && weightLeft > weightRight) {

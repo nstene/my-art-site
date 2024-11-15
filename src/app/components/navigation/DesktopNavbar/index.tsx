@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-import AuthButton from "../AuthButton/AuthButton";
 
 const DesktopNavbar = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);

@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import AuthButton from "../AuthButton/AuthButton";
 
 const MobileNavbar = () => {
     const [isMenuOpen, setMenuOpen] = useState(false);
