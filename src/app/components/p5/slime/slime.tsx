@@ -4,16 +4,91 @@ import 'p5/lib/addons/p5.sound';
 export const MySketch = () => (p: p5) => {
   const width = p.windowWidth;
   const height = p.windowHeight;
+  const pixelsWidth = Math.round(width / 2);
+  const pixelsHeight = Math.round(height / 2);
   let isPlaying = false;
-  const c = 5;
-  const rows = Math.round(height/c);
-  const cols = Math.round(width/c);
-  const gridState = new Array(rows);
+  const dt = 0.2;
+  let nAgentsInput: p5.Element;
+  let randomnessInput: p5.Element;
+  let visionInput: p5.Element;
+  let speedInput: p5.Element;
+  let button: p5.Element;
+  let fullscreenButton: p5.Element;
+  let nAgents: number;
+  let maxRandomAngle: number;
+  let vision: number;
+  let speed: number;
+  const evaporationSpeed = 0.05;
+  const turnSpeed = 2;
+  const frameRate = 24;
 
-  const computeNewGridState = (gridState: Array<number>) => {
-        const newGridState =  gridState;
-    return { newGridState }; 
+  const black = [0, 0, 0];
+  const white = [255, 255, 255];
+
+  let trailMap = new Array(pixelsHeight);
+  // Implement grid for internal activation logic
+  for (let i = 0; i < pixelsHeight; i++) {
+    trailMap[i] = new Array(pixelsWidth).fill(black); // Initialize each row with zeros
   };
+
+  let diffusedTrailMap = new Array(pixelsHeight);
+  // Implement grid for internal activation logic
+  for (let i = 0; i < pixelsHeight; i++) {
+    diffusedTrailMap[i] = new Array(pixelsWidth).fill(black); // Initialize each row with zeros
+  };
+
+  class Direction {
+    x: number;
+    y: number;
+
+    constructor(x: number, y: number) {
+      this.x = x;
+      this.y = y;
+    }
+  }
+
+  class Position {
+    x: number;
+    y: number;
+
+    constructor(x: number, y: number) {
+      this.x = x;
+      this.y = y;
+    }
+  }
+
+  class Agent {
+    position: Position;
+    angle: number;
+
+    constructor(position: Position, angle: number) {
+      this.position = position;
+      this.angle = angle;
+    }
+
+    sense(trailMap: Array<[]>, vision: number, sensorAngleOffset: number) {
+      const sensorSize = Math.round(vision / 2)
+      const sensorAngle = this.angle + sensorAngleOffset;
+      const sensorCenterX = this.position.x + Math.cos(sensorAngle) * sensorSize;
+      const sensorCenterY = this.position.y + Math.sin(sensorAngle) * sensorSize;
+      let sum = 0;
+      for (let offsetX = -sensorSize; offsetX <= sensorSize; offsetX++) {
+        for (let offsetY = 1; offsetY <= vision; offsetY++) {
+          const sampleY = Math.round(sensorCenterY) + offsetY;
+          const sampleX = Math.round(sensorCenterX) + offsetX;
+
+          if (sampleX >= 0 && sampleX < pixelsWidth && sampleY >= 0 && sampleY < pixelsHeight) {
+            sum = + (trailMap[sampleY][sampleX][0] + trailMap[sampleY][sampleX][1] + trailMap[sampleY][sampleX][2]) / 3;
+          };
+        };
+      };
+      return sum
+    }
+  }
+
+  const lerp = (a: number, b: number, t: number) => a + t * (b - a);
+
+  let agents: Agent[] = [];
 
   // SOUND STUFF
   // _______________
@@ -22,79 +97,296 @@ export const MySketch = () => (p: p5) => {
   //let fft: p5.FFT;
 
   //let elapsedSongTime = 0;
-  const frameRate = 60
   //let isFinished = false;
 
   p.preload = () => {
-    sound = p.loadSound('/music/Pomegranates-020-NicolasJaar-Muse.wav');
+    sound = p.loadSound('/music/Nymphs-004-NicolasJaarfeatLorraine-No_One_Is_Looking_at_U.wav');
   };
 
+  // Create image specifying number of pixels in each dimension
+  const img = p.createImage(pixelsWidth, pixelsHeight);
+
+  let playPauseButton: p5.Element;
+  function togglePlayPause() {
+    if (isPlaying) {
+      sound.pause();
+      playPauseButton.html('Play'); // Update button text to "Play"
+      isPlaying = false;
+    } else {
+      sound.play();
+      playPauseButton.html('Pause'); // Update button text to "Pause"
+      isPlaying = true;
+    }
+  }
+
+  function start() {
+    nAgents = Number(nAgentsInput.value());
+    maxRandomAngle = Number(randomnessInput.value());
+    vision = Number(visionInput.value());
+    speed = Number(speedInput.value());
+
+    // Clear the existing agents array
+    agents = [];
+
+    // Create new agents based on the input value
+    for (let i = 0; i < nAgents; i++) {
+      const initialPosition = new Position(
+        Math.max(0, Math.round(Math.random() * pixelsWidth - 1)),
+        Math.max(0, Math.round(Math.random() * pixelsHeight - 1))
+      );
+      const angle = Math.random() * p.TWO_PI;
+      agents.push(new Agent(initialPosition, angle));
+      trailMap[initialPosition.y][initialPosition.x] = white;
+    }
+
+    // Start playing the sound if it's not already playing
+    if (!isPlaying) {
+      togglePlayPause();
+    }
+  }
+
+  function toggleFullScreen() {
+    const isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
+    p.fullscreen(!isFullScreen); // Toggle full-screen mode
+  }
+
+  let isInputClicked = false;
+  let isVisionInputClicked = false;
+  let isRandomnessInputClicked = false;
+  let isSpeedInputClicked = false;
+
   p.setup = () => {
-    
-    p.createCanvas(p.windowWidth, window.innerHeight);
+
+    p.createCanvas(p.windowWidth, p.windowHeight);
     p.frameRate(frameRate); // Typical animation fps. If I want the animation to speed up, increase ball speed
 
-    // Implement grid for internal activation logic
-    for (let i = 0; i < rows; i++) {
-        gridState[i] = new Array(cols).fill(0); // Initialize each row with zeros
-    };   
+    // INPUTS
+    nAgentsInput = p.createInput();
+    nAgentsInput.value('Number of agents');
+    nAgentsInput.position(0, 400);
+    nAgentsInput.style('color', 'white'); // Change text color to white
+    nAgentsInput.style('background-color', 'black'); // Change background color to black
+    nAgentsInput.style('border', '1px solid white');
+    nAgentsInput.mousePressed(() => {
+      if (!isInputClicked) {
+        nAgentsInput.value(''); // Clear the input field on first click
+        isInputClicked = false; // Set flag to prevent further clearing
+      }
+    });
+    nAgentsInput.elt.onblur = () => {
+      const inputValue = String(nAgentsInput.value()); // Cast the value to a string
+      if (inputValue.trim() === '') {
+        nAgentsInput.value('Number of agents'); // Reset to default if empty
+        isInputClicked = false; // Reset the flag so user can clear it again
+      }
+    };
 
-    gridState[Math.round(rows/2) - 1][Math.round(cols/2) + 1] = 1;
-    gridState[Math.round(rows/2) - 1][Math.round(cols/2) - 1] = 1;
-    gridState[Math.round(rows/2) + 1][Math.round(cols/2) + 1] = 1;
-    gridState[Math.round(rows/2) + 1][Math.round(cols/2) - 1] = 1;
-    
+    visionInput = p.createInput();
+    visionInput.value('Agent vision field');
+    visionInput.position(0, 450);
+    visionInput.style('color', 'white'); // Change text color to white
+    visionInput.style('background-color', 'black'); // Change background color to black
+    visionInput.style('border', '1px solid white');
+    visionInput.mousePressed(() => {
+      if (!isVisionInputClicked) {
+        visionInput.value(''); // Clear the input field on first click
+        isVisionInputClicked = false; // Set flag to prevent further clearing
+      }
+    });
+    visionInput.elt.onblur = () => {
+      const inputValue = String(visionInput.value()); // Cast the value to a string
+      if (inputValue.trim() === '') {
+        visionInput.value('Agent vision field'); // Reset to default if empty
+        isVisionInputClicked = false; // Reset the flag so user can clear it again
+      }
+    };
+
+    randomnessInput = p.createInput();
+    randomnessInput.value('Angle randomness (deg)');
+    randomnessInput.position(0, 500);
+    randomnessInput.style('color', 'white'); // Change text color to white
+    randomnessInput.style('background-color', 'black'); // Change background color to black
+    randomnessInput.style('border', '1px solid white');
+    randomnessInput.mousePressed(() => {
+      if (!isRandomnessInputClicked) {
+        randomnessInput.value(''); // Clear the input field on first click
+        isRandomnessInputClicked = false; // Set flag to prevent further clearing
+      }
+    });
+    randomnessInput.elt.onblur = () => {
+      const inputValue = String(randomnessInput.value()); // Cast the value to a string
+      if (inputValue.trim() === '') {
+        randomnessInput.value('Maximum movement randomness in degrees'); // Reset to default if empty
+        isRandomnessInputClicked = false; // Reset the flag so user can clear it again
+      }
+    };
+
+    speedInput = p.createInput();
+    speedInput.value('Agent speed');
+    speedInput.position(0, 550);
+    speedInput.style('color', 'white'); // Change text color to white
+    speedInput.style('background-color', 'black'); // Change background color to black
+    speedInput.style('border', '1px solid white');
+    speedInput.mousePressed(() => {
+      if (!isSpeedInputClicked) {
+        speedInput.value(''); // Clear the input field on first click
+        isSpeedInputClicked = false; // Set flag to prevent further clearing
+      }
+    });
+    speedInput.elt.onblur = () => {
+      const inputValue = String(speedInput.value()); // Cast the value to a string
+      if (inputValue.trim() === '') {
+        speedInput.value('Agent speed'); // Reset to default if empty
+        isSpeedInputClicked = false; // Reset the flag so user can clear it again
+      }
+    };
+
+    // Create a button to submit the input
+    button = p.createButton('Submit');
+    button.position(0, 600);
+    button.mousePressed(start);
+
     // Sound stuff
     //fft = new p5.FFT(0.9, 512); // 512 is the number of bins. Increase for better resolution
     // Create play button
-    const playButton = p.createButton('Play');
-    playButton.position(0, 100);
-    playButton.mousePressed(() => {
-      if (!isPlaying){
-        sound.play();
-        isPlaying = true;
-      }
+    // Create play button
+    playPauseButton = p.createButton('Play');
+    playPauseButton.position(0, 100);
+    playPauseButton.mousePressed(togglePlayPause);
+
+    const resetButton = p.createButton('Reset');
+    resetButton.position(0, 200);
+    resetButton.mousePressed(() => {
+      togglePlayPause();
+      trailMap = new Array(pixelsHeight).fill(0).map(() => new Array(pixelsWidth).fill(black));
+      diffusedTrailMap = new Array(pixelsHeight).fill(0).map(() => new Array(pixelsWidth).fill(black));
+      p.clear();
+      p.background(0); // Ensure the background is solid black after reset
     });
-    
-    // Create pause button
-    const pauseButton = p.createButton('Pause');
-    pauseButton.position(0, 150);
-    pauseButton.mousePressed(() => {
-      sound.pause();
-      isPlaying = false;
-    });
-};
 
-  p.draw = () => {    
-    p.background(0, 16); // clear background at each iteration otherwise the circles will be drawn on top of eachother. Also add some transparency for fading effects.
-    
-    // Visualize grid
-    p.stroke('white');
-    p.strokeWeight(0.1);
-    for (let i = 0; i < rows; i++){
-        p.line(0, i*c, c*cols, i*c);
+    // Create button for full screen mode
+    fullscreenButton = p.createButton('Full Screen');
+    fullscreenButton.position(0, 150);
+    fullscreenButton.mousePressed(toggleFullScreen);
+
+    // Create a number of agents that will travel around, randomly distributed across the map
+    for (let i = 0; i < nAgents; i++) {
+      const initialPosition = new Position(Math.max(0, Math.round(Math.random() * pixelsWidth - 1)), Math.max(0, Math.round(Math.random() * pixelsHeight) - 1));
+      const angle = Math.random() * p.TWO_PI;
+      agents.push(new Agent(initialPosition, angle));
+      trailMap[initialPosition.y][initialPosition.x] = white;
     };
+  };
 
-    for (let j = 0; j < cols; j++){
-        p.line(j*c, 0, j*c, c*rows);
-    };
+  p.draw = () => {
 
-    // Compute new grid state
-    computeNewGridState(gridState)
+    p.background(0, 16);
 
-    p.rectMode(p.CENTER);
+    // Credits
+    p.push();
+    p.noStroke();
     p.fill('white');
+    const text = "Jaar, Nicolas. 'No One Is Looking at U' Nymphs. https://www.jaar.site/";
+    p.text(text, 0, p.windowHeight - 5);
+    p.pop();
 
-    // Iterate over the grid to check which case to turn on
-    for (let i = 0; i < rows; i++){
-        for (let j = 0; j < cols; j++){
-            if (gridState[i][j] === 1){
-                p.rect(j*c, i*c, c, c);
-            };
-        };
+    if (p.keyIsPressed && p.key === ' ') {
+      togglePlayPause();
+    }
+
+    p.image(img, p.windowWidth / 2 - pixelsWidth / 2, p.windowHeight / 2 - pixelsHeight / 2);
+
+    // Move agents if playing
+    if (!isPlaying) {
+      return;
+    }
+
+    for (const agent of agents) {
+      const direction = new Direction(Math.cos(agent.angle), Math.sin(agent.angle));
+
+      let newX = agent.position.x + direction.x * speed * dt;
+      let newY = agent.position.y + direction.y * speed * dt;
+
+      // Handle case when agents meet a wall
+      if (newX < 0 || newX >= pixelsWidth || newY < 0 || newY >= pixelsHeight) {
+        newX = Math.min(pixelsWidth - 1, Math.max(0, newX));
+        newY = Math.min(pixelsHeight - 1, Math.max(0, newY));
+        agent.angle += p.PI + Math.sign(Math.random() - 0.5) * Math.random() * p.PI / 2; // goes back but with some randomness
+      };
+      agent.position = new Position(Math.round(newX), Math.round(newY));
+      trailMap[Math.min(agent.position.y, pixelsHeight - 1)][Math.min(agent.position.x, pixelsWidth - 1)] = white;
     };
 
+    // Process trail map for evaporation
+    const evaporatedTrailMap = trailMap;
+    for (let i = 0; i < pixelsHeight; i++) {
+      for (let j = 0; j < pixelsWidth; j++) {
+        evaporatedTrailMap[i][j] = [Math.max(0, trailMap[i][j][0] - evaporationSpeed * dt),
+        Math.max(0, trailMap[i][j][1] - evaporationSpeed * dt),
+        Math.max(0, trailMap[i][j][2] - evaporationSpeed * dt)];
+      }
+    }
 
+    // Process trail map for blurring
+    const diffusedEvaporatedTrailMap = trailMap;
+    // Loop over all pixel
+    for (let i = 0; i < pixelsHeight; i++) {
+      for (let j = 0; j < pixelsWidth; j++) {
+        // Loop over grid around the pixel for doing average
+        let blurredVal1 = 0;
+        let blurredVal2 = 0;
+        let blurredVal3 = 0;
+        for (let offsetX = - 1; offsetX <= 1; offsetX++) {
+          for (let offsetY = - 1; offsetY <= 1; offsetY++) {
+            const sampleY = i + offsetY;
+            const sampleX = j + offsetX;
+            if (sampleX >= 0 && sampleX < pixelsWidth && sampleY >= 0 && sampleY < pixelsHeight) {
+              blurredVal1 = + evaporatedTrailMap[sampleY][sampleX][0];
+              blurredVal2 = + evaporatedTrailMap[sampleY][sampleX][1];
+              blurredVal3 = + evaporatedTrailMap[sampleY][sampleX][2];
+            }
+          }
+        }
+
+        const diffusedVal1 = lerp(trailMap[i][j][0], blurredVal1 / 2, evaporationSpeed * dt);
+        const diffusedVal2 = lerp(trailMap[i][j][1], blurredVal2 / 2, evaporationSpeed * dt);
+        const diffusedVal3 = lerp(trailMap[i][j][2], blurredVal3 / 2, evaporationSpeed * dt);
+
+        diffusedEvaporatedTrailMap[i][j] = [Math.max(0, diffusedVal1 - evaporationSpeed * dt),
+        Math.max(0, diffusedVal2 - evaporationSpeed * dt),
+        Math.max(0, diffusedVal3 - evaporationSpeed * dt)];
+      }
+    }
+
+    img.loadPixels();
+
+    for (const agent of agents) {
+      // Steer direction based on the trails
+      const sensorAngleOffset = 30;
+      const weightLeft = agent.sense(diffusedEvaporatedTrailMap, vision, sensorAngleOffset);
+      const weightRight = agent.sense(diffusedEvaporatedTrailMap, vision, - sensorAngleOffset);
+      const weightStraight = agent.sense(diffusedEvaporatedTrailMap, vision, 0);
+
+      // Add a tiny bit of randomness to direction (max 10 degrees)
+      const noise = Math.random() * maxRandomAngle / 360 * p.TWO_PI
+      if (weightStraight > weightLeft && weightStraight > weightRight) {
+        agent.angle += noise;
+      } else if (weightLeft > weightStraight && weightLeft > weightRight) {
+        agent.angle += turnSpeed / 360 * p.TWO_PI + noise;
+      } else if (weightRight > weightLeft && weightRight > weightStraight) {
+        agent.angle -= turnSpeed / 360 * p.TWO_PI + noise;
+      }
+    }
+
+    // Iterate over the grid and set pixels for each cell
+    for (let i = 0; i < pixelsHeight; i++) {
+      for (let j = 0; j < pixelsWidth; j++) {
+        const color = diffusedEvaporatedTrailMap[i][j];
+        img.set(j, i, p.color(color));
+      };
+    };
+
+    img.updatePixels();
 
   };
 

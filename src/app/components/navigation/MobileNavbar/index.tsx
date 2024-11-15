@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import AuthButton from "../AuthButton/AuthButton";
 
 const MobileNavbar = () => {
     const [isMenuOpen, setMenuOpen] = useState(false);
@@ -36,13 +35,6 @@ const MobileNavbar = () => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/classic-routes/TwoDPages/soundVisualizer">
-                                            <button className="p-4 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                                                Sound Visualizer
-                                            </button>
-                                        </Link>
-                                    </li>
-                                    <li>
                                         <Link href="/classic-routes/TwoDPages/slime">
                                             <button className="p-4 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
                                                 Slime
@@ -51,9 +43,6 @@ const MobileNavbar = () => {
                                     </li>
                                 </ul>
                             )}
-                        </li>
-                        <li>
-                            <AuthButton />
                         </li>
                     </ul>
                 </div>
