@@ -1,5 +1,7 @@
 import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
+import React, { useState, useEffect } from 'react';
+import Logo from '../../../components/Logo/Logo';
 
 export const MySketch = () => (p: p5) => {
   const width = p.windowWidth;
@@ -21,6 +23,7 @@ export const MySketch = () => (p: p5) => {
   const evaporationSpeed = 0.05;
   const turnSpeed = 2;
   const frameRate = 24;
+  let loadingMessage: p5.Element;
 
   const black = [0, 0, 0];
   const white = [255, 255, 255];
@@ -100,8 +103,14 @@ export const MySketch = () => (p: p5) => {
   //let isFinished = false;
 
   p.preload = () => {
-    sound = p.loadSound('/music/Nymphs-004-NicolasJaarfeatLorraine-No_One_Is_Looking_at_U.wav');
+    loadingMessage = p.createP('Loading... Please wait.');
+    loadingMessage.position(p.windowWidth/2 - 100, p.windowHeight/2);
+    sound = p.loadSound('/music/Nymphs-004-NicolasJaarfeatLorraine-No_One_Is_Looking_at_U.wav', onLoadComplete);
   };
+
+  function onLoadComplete() {
+    loadingMessage.remove(); // Remove the loading message from the screen
+  }
 
   // Create image specifying number of pixels in each dimension
   const img = p.createImage(pixelsWidth, pixelsHeight);
@@ -387,7 +396,6 @@ export const MySketch = () => (p: p5) => {
     };
 
     img.updatePixels();
-
   };
 
   p.windowResized = () => {
