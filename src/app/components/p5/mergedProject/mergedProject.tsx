@@ -6,6 +6,7 @@ export const MySketch = () => (p: p5) => {
   const height = p.windowHeight;
   let isPlaying = false;
   let fullscreenButton: p5.Element;
+  let loadingMessage: p5.Element;
   
   // Stargazing stuff
   //___________________
@@ -84,8 +85,14 @@ export const MySketch = () => (p: p5) => {
   let speedFactor = 1;
 
   p.preload = () => {
-    sound = p.loadSound('/music/Pomegranates-020-NicolasJaar-Muse.wav');
+    loadingMessage = p.createP('Loading... Please wait.');
+    loadingMessage.position(p.windowWidth/2 - 100, p.windowHeight/2);
+    sound = p.loadSound('/music/Pomegranates-020-NicolasJaar-Muse.wav', onLoadComplete);
   };
+
+  function onLoadComplete() {
+    loadingMessage.remove(); // Remove the loading message from the screen
+  }
 
   function toggleFullScreen() {
     const isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
