@@ -1,4 +1,3 @@
-// components/P5Wrapper.tsx
 "use client";
 import { useEffect, useRef } from 'react';
 import { MySketch } from './slime';
@@ -6,15 +5,14 @@ import p5 from 'p5';
 
 const P5Wrapper = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => { 
-    // Function to initialize p5.js and the sketch
+
+  useEffect(() => {
     const initP5 = async () => {
       try {
         // Dynamically import p5 and p5.sound addon
         const p5Module = await import('p5');
-        const p5SoundModule = await import('p5/lib/addons/p5.sound');        
-        
+        const p5SoundModule = await import('p5/lib/addons/p5.sound');
+
         // Ensure p5 and p5.sound are loaded
         if (!p5Module.default || !p5SoundModule) {
           throw new Error('p5 or p5.sound failed to load');
@@ -23,7 +21,7 @@ const P5Wrapper = () => {
         // Create a new p5 instance and pass the sketch and the canvas reference
         if (canvasRef.current) {
           const p5Instance = new p5Module.default((p: p5) => {
-            MySketch()(p); // Non-null assertion operator
+            MySketch()(p); // Pass p5 instance to the sketch
           }, canvasRef.current);
 
           // Return cleanup function
@@ -39,7 +37,7 @@ const P5Wrapper = () => {
     // Call the initialization function
     const cleanupPromise = initP5();
 
-    // Handle cleanup when the component unmounts
+    // Cleanup function when component unmounts
     cleanupPromise.then((cleanup) => {
       if (cleanup) {
         return () => cleanup();
