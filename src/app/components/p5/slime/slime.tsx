@@ -1,6 +1,5 @@
 import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
-import { useEffect } from 'react';
 
 export const MySketch = () => (p: p5) => {
   const width = p.windowWidth;
@@ -400,13 +399,4 @@ export const MySketch = () => (p: p5) => {
   p.windowResized = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
-
-  // Cleanup: Stop sound when component is unmounted
-  useEffect(() => {
-    return () => {
-      if (sound && sound.isPlaying()) {
-        sound.stop();
-      }
-    };
-  }, []);
 };
