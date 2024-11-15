@@ -83,7 +83,6 @@ export const MySketch = () => (p: p5) => {
         };
 
         // if this cell is on, check which cells to turn on next
-        let generation = false;
         const possibleNeighbours = [newGridState[i + 1]?.[j - 1], newGridState[i]?.[j - 1], newGridState[i - 1]?.[j - 1], 
                                     newGridState[i - 1]?.[j],                           newGridState[i - 1]?.[j + 1], 
                                     newGridState[i]?.[j + 1], newGridState[i + 1]?.[j + 1], newGridState[i + 1]?.[j]].filter(cell => cell !== undefined);
@@ -107,16 +106,10 @@ export const MySketch = () => (p: p5) => {
               if (newGridState[dx][dy] === 0){
                 newGridState[dx][dy] = 1; // Mark cell as turned on
                 newUsedGridState[i][j] = 1;
-                generation = true;
               };
             }
           }
         }
-        /*
-        if (generation === true) {
-          newUsedGridState[i][j] = 1;
-        };
-        */
       };
     };
     return { newGridState, newUsedGridState };

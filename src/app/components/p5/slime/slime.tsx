@@ -252,7 +252,7 @@ export const MySketch = () => (p: p5) => {
   p.draw = () => {
 
     p.background(0, 16);
-    
+
     // Credits
     p.push();
     p.noStroke();
@@ -334,9 +334,9 @@ export const MySketch = () => (p: p5) => {
     for (let agent of agents) {
       // Steer direction based on the trails
       let sensorAngleOffset = 30;
-      let weightLeft = agent.sense(diffusedEvaporatedTrailMap, vision, sensorAngleOffset);
-      let weightRight = agent.sense(diffusedEvaporatedTrailMap, vision, - sensorAngleOffset);
-      let weightStraight = agent.sense(diffusedEvaporatedTrailMap, vision, 0);
+      const weightLeft = agent.sense(diffusedEvaporatedTrailMap, vision, sensorAngleOffset);
+      const weightRight = agent.sense(diffusedEvaporatedTrailMap, vision, - sensorAngleOffset);
+      const weightStraight = agent.sense(diffusedEvaporatedTrailMap, vision, 0);
 
       // Add a tiny bit of randomness to direction (max 10 degrees)
       let noise = Math.random() * maxRandomAngle / 360 * p.TWO_PI
