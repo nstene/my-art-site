@@ -7,7 +7,7 @@ export const MySketch = () => (p: p5) => {
   const pixelsWidth = Math.round(width / 2);
   const pixelsHeight = Math.round(height / 2);
   let isPlaying = false;
-  const speed = 10;
+  const speed = 20;
   const dt = 0.2;
   let nAgentsInput: p5.Element;
   let randomnessInput: p5.Element;
@@ -17,8 +17,9 @@ export const MySketch = () => (p: p5) => {
   let maxRandomAngle: number;
   let vision: number;
   const evaporationSpeed = 0.05;
-  const turnSpeed = 10;
+  const turnSpeed = 2;
   const frameRate = 24;
+  let hasReset = false;
 
   const black = [0, 0, 0];
   const white = [255, 255, 255];
@@ -121,10 +122,10 @@ export const MySketch = () => (p: p5) => {
     nAgents = Number(nAgentsInput.value());
     maxRandomAngle = Number(randomnessInput.value());
     vision = Number(visionInput.value());
-  
+
     // Clear the existing agents array
     agents = [];
-  
+
     // Create new agents based on the input value
     for (let i = 0; i < nAgents; i++) {
       const initialPosition = new Position(
@@ -135,11 +136,13 @@ export const MySketch = () => (p: p5) => {
       agents.push(new Agent(initialPosition, angle));
       trailMap[initialPosition.y][initialPosition.x] = white;
     }
-  
+
     // Start playing the sound if it's not already playing
     if (!isPlaying) {
       togglePlayPause();
     }
+
+    hasReset = false;
   }
 
   let isInputClicked = false;
@@ -228,8 +231,13 @@ export const MySketch = () => (p: p5) => {
     const resetButton = p.createButton('Reset');
     resetButton.position(0, 200);
     resetButton.mousePressed(() => {
-      sound.pause();
-      //hasReset = true;
+      togglePlayPause();
+      hasReset = true;
+      trailMap = new Array(pixelsHeight).fill(0).map(() => new Array(pixelsWidth).fill(black));
+      diffusedTrailMap = new Array(pixelsHeight).fill(0).map(() => new Array(pixelsWidth).fill(black));
+      //start();
+      p.clear();
+      p.background(0); // Ensure the background is solid black after reset
     });
 
     // Create a number of agents that will travel around, randomly distributed across the map
@@ -244,6 +252,14 @@ export const MySketch = () => (p: p5) => {
   p.draw = () => {
 
     p.background(0, 16);
+    
+    // Credits
+    p.push();
+    p.noStroke();
+    p.fill('white');
+    const text = "Jaar, Nicolas. 'No One Is Looking at U' Nymphs. https://www.jaar.site/";
+    p.text(text, 0, height);
+    p.pop();
 
     if (p.keyIsPressed && p.key === ' ') {
       togglePlayPause();
