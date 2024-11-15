@@ -67,7 +67,7 @@ export const MySketch = () => (p: p5) => {
     }
 
     sense(trailMap: Array<[]>, vision: number, sensorAngleOffset: number) {
-      let sensorSize = Math.round(vision / 2)
+      const sensorSize = Math.round(vision / 2)
       const sensorAngle = this.angle + sensorAngleOffset;
       const sensorCenterX = this.position.x + Math.cos(sensorAngle) * sensorSize;
       const sensorCenterY = this.position.y + Math.sin(sensorAngle) * sensorSize;
@@ -146,7 +146,7 @@ export const MySketch = () => (p: p5) => {
   }
 
   function toggleFullScreen() {
-    let isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
+    const isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
     p.fullscreen(!isFullScreen); // Toggle full-screen mode
   }
 
@@ -362,7 +362,7 @@ export const MySketch = () => (p: p5) => {
 
     for (const agent of agents) {
       // Steer direction based on the trails
-      let sensorAngleOffset = 30;
+      const sensorAngleOffset = 30;
       const weightLeft = agent.sense(diffusedEvaporatedTrailMap, vision, sensorAngleOffset);
       const weightRight = agent.sense(diffusedEvaporatedTrailMap, vision, - sensorAngleOffset);
       const weightStraight = agent.sense(diffusedEvaporatedTrailMap, vision, 0);

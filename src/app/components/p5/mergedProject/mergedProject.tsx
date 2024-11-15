@@ -88,7 +88,7 @@ export const MySketch = () => (p: p5) => {
   };
 
   function toggleFullScreen() {
-    let isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
+    const isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
     p.fullscreen(!isFullScreen); // Toggle full-screen mode
   }
 
