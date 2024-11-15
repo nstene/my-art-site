@@ -1,7 +1,5 @@
 import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
-import React, { useState, useEffect } from 'react';
-import Logo from '../../../components/Logo/Logo';
 
 export const MySketch = () => (p: p5) => {
   const width = p.windowWidth;
