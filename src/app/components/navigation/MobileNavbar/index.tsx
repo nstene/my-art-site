@@ -41,6 +41,13 @@ const MobileNavbar = () => {
                                             </button>
                                         </Link>
                                     </li>
+                                    <li>
+                                        <Link href="/classic-routes/TwoDPages/stock">
+                                            <button className="p-4 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                                                Burning Planet
+                                            </button>
+                                        </Link>
+                                    </li>
                                 </ul>
                             )}
                         </li>
