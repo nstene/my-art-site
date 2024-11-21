@@ -9,19 +9,19 @@ import p5 from 'p5';
 export const MySketch = () => (p: p5) => {
     const width = p.windowWidth;
     const height = p.windowHeight;
-    const nParticles = 100;
+    const nParticles = 500;
     const particleRadius = 10;
     let particles: Particle[] = [];
     const initialVelocity = 0;
     const g = 0 / 10;
-    const frameRate = 60;
+    const frameRate = 40;
     let t: number;
     const collisionDamp = 0.95;
-    const influenceRadius = particleRadius * 50;
+    const influenceRadius = particleRadius * 20;
     let densities: number[] = [];
     const mass = 1;
     const targetDensity = 0.00001;
-    const pressureMultiplier = 10;
+    const pressureMultiplier = 1000;
 
     class Position {
         x: number;
@@ -105,27 +105,31 @@ export const MySketch = () => (p: p5) => {
         return density;
     };
 
-    const UpdateDensities = (particles: Particle[], spatialLookup: Entry[], startIndices: number[]): number[] => {
+    const UpdateDensities = (particles: Particle[]): number[] => {
 
         densities = [];
         for (let particle of particles) {
-            const particlesToUse = ForeachPointWithinRadius(particles, particle, spatialLookup, startIndices);
-            const density = ComputeDensity(particlesToUse, particle.position)
+            //const particlesToUse = ForeachPointWithinRadius(particles, particle, spatialLookup, startIndices);
+            const density = ComputeDensity(particles, particle.position)
             densities.push(density);
         };
 
         return densities
     };
 
-    const ComputePressureForce = (particles: Particle[], particle: Particle, density: number): PressureForce => {
+    const ComputePressureForce = (particles: Particle[], particleIndex: number, densities: number[]): PressureForce => {
         let pressureForce = [0, 0];
 
         for (let i = 0; i < particles.length; i++) {
-            const distance = Math.hypot((particles[i].position.x - particle.position.x), (particles[i].position.y - particle.position.y));
+            const distance = Math.hypot((particles[i].position.x - particles[particleIndex].position.x), (particles[i].position.y - particles[particleIndex].position.y));
+            if ( distance <= 10e-8 ){
+                continue;
+            }
             const slope = SmoothingKernelDerivative(influenceRadius, distance);
-            const direction = [(particles[i].position.x - particle.position.x) / distance, (particles[i].position.y - particle.position.y) / distance];
-            pressureForce[0] += ConvertDensityToPressure(density) * direction[0] * slope * mass / density;
-            pressureForce[1] += ConvertDensityToPressure(density) * direction[1] * slope * mass / density;
+            const direction = [(particles[i].position.x - particles[particleIndex].position.x) / distance, (particles[i].position.y - particles[particleIndex].position.y) / distance];
+            const sharedPressure = ComputeSharedPressure(densities[particleIndex], densities[i]);
+            pressureForce[0] += sharedPressure * direction[0] * slope * mass / densities[particleIndex];
+            pressureForce[1] += sharedPressure * direction[1] * slope * mass / densities[particleIndex];
         }
 
         return new PressureForce(pressureForce[0], pressureForce[1])
@@ -134,7 +138,7 @@ export const MySketch = () => (p: p5) => {
 
     const ConvertDensityToPressure = (density: number): number => {
         const densityDiff = density - targetDensity;
-        const pressure = densityDiff * pressureMultiplier
+        const pressure = densityDiff * pressureMultiplier;
         return pressure
     };
 
@@ -254,8 +258,8 @@ export const MySketch = () => (p: p5) => {
         t = p.frameCount / frameRate;
 
         // Update spatial look up
-        const [spatialLookup, startIndices] = UpdateSpatialLookup(particles, influenceRadius);
-        const densities = UpdateDensities(particles, spatialLookup, startIndices);
+        //const [spatialLookup, startIndices] = UpdateSpatialLookup(particles, influenceRadius);
+        const densities = UpdateDensities(particles);
 
         let sum = 0;
         for (let i in particles) {
@@ -273,9 +277,9 @@ export const MySketch = () => (p: p5) => {
 
             const particle = particles[particleIndex];
 
-            const particlesToUse = ForeachPointWithinRadius(particles, particle, spatialLookup, startIndices)
+           // const particlesToUse = ForeachPointWithinRadius(particles, particle, spatialLookup, startIndices)
 
-            const pressureForce = ComputePressureForce(particlesToUse, particle, densities[particleIndex])
+            const pressureForce = ComputePressureForce(particles, particleIndex, densities)
 
             let acceleration_y = g
             let acceleration_x = 0;
