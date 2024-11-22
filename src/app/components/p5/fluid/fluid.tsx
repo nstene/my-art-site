@@ -9,8 +9,8 @@ import p5 from 'p5';
 export const MySketch = () => (p: p5) => {
     const width = p.windowWidth;
     const height = p.windowHeight;
-    const nParticles = 10;
-    const particleRadius = 100;
+    const nParticles = 50;
+    const particleRadius = 10;
     let particles: Particle[] = [];
     const initialVelocity = 0;
     const g = 0 / 10;
@@ -23,6 +23,7 @@ export const MySketch = () => (p: p5) => {
     const targetDensity = 0.00001;
     const pressureMultiplier = 10e3;
     const maxDist = 2 * particleRadius; // see what it changes?
+    const minDistance = 2*particleRadius;
 
     class Position {
         x: number;
@@ -58,11 +59,15 @@ export const MySketch = () => (p: p5) => {
         position: Position;
         velocity: Velocity;
         pressureForce: PressureForce;
+        color: number[];
+        collided: boolean;
 
-        constructor(position: Position, velocity: Velocity, pressureForce: PressureForce) {
+        constructor(position: Position, velocity: Velocity, pressureForce: PressureForce, color=[255, 255, 255], collided=false) {
             this.position = position;
             this.velocity = velocity;
             this.pressureForce = pressureForce;
+            this.color = color;
+            this.collided = collided;
         }
     }
 
@@ -128,8 +133,8 @@ export const MySketch = () => (p: p5) => {
 
         // Converts particle coordinates into cell coordinates
         positionToCellCoord(point: Position): Position {
-            const cellX = Math.round(point.x / this.spacing);
-            const cellY = Math.round(point.y / this.spacing);
+            const cellX = Math.floor(point.x / this.spacing);
+            const cellY = Math.floor(point.y / this.spacing);
             return new Position(cellX, cellY)
         };
 
@@ -193,6 +198,7 @@ export const MySketch = () => (p: p5) => {
 
             this.querySize = 0;
             this.queryIds = [];
+            const uniqueParticles = new Set<number>();
 
             for (let xi = minCellCoordinates.x; xi <= maxCellCoordinates.x; xi++) {
                 for (let yi = minCellCoordinates.y; yi <= maxCellCoordinates.y; yi++) {
@@ -201,12 +207,12 @@ export const MySketch = () => (p: p5) => {
                     const end = this.cellStart[h + 1];
 
                     for (let i = start; i < end; i++) {
-                        this.queryIds[this.querySize] = this.cellEntries[i];
-                        this.querySize++;
+                        uniqueParticles.add(this.cellEntries[i]);
                     }
                 }
             }
-
+            this.queryIds = Array.from(uniqueParticles);
+            this.querySize = this.queryIds.length;
         }
     }
 
@@ -218,12 +224,27 @@ export const MySketch = () => (p: p5) => {
 
         // create N particles of radius R
         for (let i = 0; i < nParticles; i++) {
-            const initialPosition = new Position(Math.round(Math.random() * width), Math.round(Math.random() * height));
-            const initialVelocity = new Velocity(0, 0);
+            const initialVelocityX = 2*(0.5 - Math.random());
+            const initialVelocityY = 2*(0.5 - Math.random());;
+            let initialPosition = new Position(0, 0);
+
+            let overlap = true;
+            // create new particle and check for overlaps
+            while ( overlap ){
+                overlap = false;
+                initialPosition = new Position(Math.round(Math.random() * width), Math.round(Math.random() * height));
+                for ( let particle of particles ) {
+                    const distance = Math.hypot((initialPosition.x - particle.position.x), (initialPosition.y - particle.position.y));
+                    if ( distance <= minDistance ) {
+                        overlap = true;
+                        break;
+                    }
+                }
+            }
+            const initialVelocity = new Velocity(initialVelocityX, initialVelocityY);
             const initialPressureForce = new PressureForce(0, 0);
             particles.push(new Particle(initialPosition, initialVelocity, initialPressureForce));
         };
-
     };
 
     p.draw = () => {
@@ -234,17 +255,21 @@ export const MySketch = () => (p: p5) => {
         t = p.frameCount / frameRate;
 
         // Hash that shit
-        const hash = new Hash(2 * influenceRadius, nParticles)
-        const hash2 = new Hash(2 * influenceRadius, nParticles)
-        hash.create(particles)
-        hash2.create(particles)
+        const hash = new Hash(maxDist, nParticles);
+        hash.create(particles);
 
 
         // Update the particle positions where they're supposed to be after t, with correct pressure forces
         for (let particleIndex = 0; particleIndex < particles.length; particleIndex++) {
 
             const particle = particles[particleIndex];
+            particle.collided = false;
+            let normalDirection = [0, 0];
 
+            particle.position.y += particle.velocity.y * t;
+            particle.position.x += particle.velocity.x * t;
+
+            /*
             hash.query(particles, particleIndex, maxDist);
 
             // Compute density
@@ -306,6 +331,7 @@ export const MySketch = () => (p: p5) => {
                 pressureForce[1] += sharedPressure * direction[1] * slope * mass / density;
             }
 
+            
             let acceleration_y = g;
             let acceleration_x = 0;
 
@@ -319,6 +345,8 @@ export const MySketch = () => (p: p5) => {
 
             particle.position.y += particle.velocity.y * t;
             particle.position.x += particle.velocity.x * t;
+
+            */
 
             // Resolve world collisions
             if ((particle.position.y + particleRadius) >= height || (particle.position.y - particleRadius) <= 0) {
@@ -343,43 +371,70 @@ export const MySketch = () => (p: p5) => {
                     continue;
                 }
 
-                if ( distance <= 10e-8 ) { 
+                if ( distance <= 10e-8 ) {
                     continue;
                 }
-
-                const minDistance = 2*particleRadius;
                 
                 if ( distance <= minDistance ) {
+
+                    particle.collided = true;
+                    otherParticle.collided = true;
+
                     // Separate the balls
                     const correction = (minDistance - distance)/2;
-                    const normalDirection = [otherParticle.position.x - particle.position.x, otherParticle.position.y - particle.position.y];
-                    particle.position.x += normalDirection[0] * correction;
-                    particle.position.y += normalDirection[1] * correction;
-                    otherParticle.position.x -= normalDirection[0] * correction;
-                    otherParticle.position.y -= normalDirection[1] * correction;
+                    const norm = Math.sqrt((otherParticle.position.x - particle.position.x)**2 + (otherParticle.position.y - particle.position.y)**2);
+                    normalDirection = [(otherParticle.position.x - particle.position.x)/norm, (otherParticle.position.y - particle.position.y)/norm];
+                    particle.position.x -= normalDirection[0] * correction;
+                    particle.position.y -= normalDirection[1] * correction;
+                    otherParticle.position.x += normalDirection[0] * correction;
+                    otherParticle.position.y += normalDirection[1] * correction;
+                    const newNorm = Math.sqrt((otherParticle.position.x - particle.position.x)**2 + (otherParticle.position.y - particle.position.y)**2);
 
                     // Reflect velocities along normal
-                    const dotProductParticleNormal = particle.position.x * normalDirection[0] + particle.position.y * normalDirection[1];
-                    const dotProductOtherParticleNormal = otherParticle.position.x * normalDirection[0] + otherParticle.position.y * normalDirection[1];
+                    const dotProductParticleNormal = particle.velocity.x * normalDirection[0] + particle.velocity.y * normalDirection[1];
+                    const dotProductOtherParticleNormal = otherParticle.velocity.x * normalDirection[0] + otherParticle.velocity.y * normalDirection[1];
 
-                    particle.velocity.x += normalDirection[0] * ( dotProductParticleNormal - dotProductOtherParticleNormal);
-                    particle.velocity.y += normalDirection[1] * ( dotProductParticleNormal - dotProductOtherParticleNormal);
-                    otherParticle.velocity.x -= normalDirection[0] * ( dotProductParticleNormal - dotProductOtherParticleNormal);
-                    otherParticle.velocity.y -= normalDirection[1] * ( dotProductParticleNormal - dotProductOtherParticleNormal);
+                    particle.velocity.x -= normalDirection[0] * ( dotProductParticleNormal - dotProductOtherParticleNormal);
+                    particle.velocity.y -= normalDirection[1] * ( dotProductParticleNormal - dotProductOtherParticleNormal);
+                    otherParticle.velocity.x += normalDirection[0] * ( dotProductParticleNormal - dotProductOtherParticleNormal);
+                    otherParticle.velocity.y += normalDirection[1] * ( dotProductParticleNormal - dotProductOtherParticleNormal);
                 }
             }
-        }
 
-        // Draw the particles where they're supposed to be
-        for (let particle of particles) {
+            p.push();
+            let color = [255, 255, 255];
+            if ( particle.collided ) {
+                color = [255, 0, 0];
+            }
+            p.pop();
+            p.push();
+            p.fill(color);
             p.circle(particle.position.x, particle.position.y, 2 * particleRadius);
+            p.push();
+            p.noFill();
+            p.stroke(255, 0, 0)
+            p.circle(particle.position.x, particle.position.y, 2 * influenceRadius);
+            p.pop();
             p.push();
             p.fill(0);
             p.text(`${particle.position.x}`, particle.position.x, particle.position.y);
             p.text(`${particle.position.y}`, particle.position.x, particle.position.y + 10);
             p.pop();
-        }
+            // Draw normal direction
+            p.push();
+            p.fill([0, 0, 0])
+            p.stroke([0, 0, 0])
+            p.line(particle.position.x, particle.position.y, particle.position.x + normalDirection[0]*100, particle.position.y + normalDirection[1]*100);
+            p.pop();
+            // Draw velocity
+            p.push();
+            p.fill([0, 0, 0])
+            p.stroke([0, 255, 0])
+            p.line(particle.position.x, particle.position.y, particle.position.x + particle.velocity.x*50, particle.position.y + particle.velocity.y*50);
+            p.pop();
 
+
+        }
     };
 
     p.windowResized = () => {
