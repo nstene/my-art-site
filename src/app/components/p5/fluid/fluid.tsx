@@ -9,20 +9,21 @@ import p5 from 'p5';
 export const MySketch = () => (p: p5) => {
     const width = p.windowWidth;
     const height = p.windowHeight;
-    const nParticles = 50;
-    const particleRadius = 10;
+    const nParticles = 1000;
+    const particleRadius = 2;
     let particles: Particle[] = [];
     const initialVelocity = 0;
     const g = 0 / 10;
-    const frameRate = 40;
+    const frameRate = 24;
     let t: number;
-    const collisionDamp = 0;
-    const influenceRadius = particleRadius * 2;
+    const collisionDamp = 0.8;
+    const influenceRadius = particleRadius * 30;
     let densities: number[] = [];
     const mass = 1;
-    const targetDensity = 0.00001;
-    const pressureMultiplier = 10e3;
-    const maxDist = 2 * particleRadius; // see what it changes?
+    //const targetDensity = nParticles / ( width * height );
+    const targetDensity = 0;
+    const pressureMultiplier = 10;
+    const maxDist = influenceRadius; // see what it changes?
     const minDistance = 2*particleRadius;
 
     class Position {
@@ -101,6 +102,8 @@ export const MySketch = () => (p: p5) => {
 
 
     const ConvertDensityToPressure = (density: number): number => {
+        // If density > targetDensity, they should go down the pressure gradient
+        // If density < targetDensity, they should go up the pressure gradient
         const densityDiff = density - targetDensity;
         const pressure = densityDiff * pressureMultiplier;
         return pressure
@@ -256,7 +259,9 @@ export const MySketch = () => (p: p5) => {
 
         // Hash that shit
         const hash = new Hash(maxDist, nParticles);
+        const hash2 = new Hash(maxDist, nParticles);
         hash.create(particles);
+        hash2.create(particles);
 
 
         // Update the particle positions where they're supposed to be after t, with correct pressure forces
@@ -269,7 +274,7 @@ export const MySketch = () => (p: p5) => {
             particle.position.y += particle.velocity.y * t;
             particle.position.x += particle.velocity.x * t;
 
-            /*
+            // Query all particles within maxDist of particle in focus for density and pressure force calculations
             hash.query(particles, particleIndex, maxDist);
 
             // Compute density
@@ -305,6 +310,7 @@ export const MySketch = () => (p: p5) => {
                 }
 
                 // Compute density for other particle neighbourhood
+                // Query all particles within maxDist of the Other Particle 
                 hash2.query(particles, hash.queryIds[j], maxDist);
                 let densityOtherParticle = 0;
                 for (let k = 0; k < hash2.querySize; k++) {
@@ -340,13 +346,13 @@ export const MySketch = () => (p: p5) => {
                 acceleration_x += pressureForce[0] / density;
             }
 
+            // velocity is recomputed each time, so no border collision effect
             particle.velocity.y = acceleration_y * t;
             particle.velocity.x = acceleration_x * t;
 
             particle.position.y += particle.velocity.y * t;
             particle.position.x += particle.velocity.x * t;
 
-            */
 
             // Resolve world collisions
             if ((particle.position.y + particleRadius) >= height || (particle.position.y - particleRadius) <= 0) {
@@ -358,6 +364,8 @@ export const MySketch = () => (p: p5) => {
                 particle.position.x = Math.min(width - particleRadius, Math.max(particleRadius, particle.position.x));
                 particle.velocity.x *= -1 * ( 1 - collisionDamp );
             }
+
+            /*
 
             // Check for overlaps
             hash.query(particles, particleIndex, 2.0 * particleRadius);
@@ -401,6 +409,8 @@ export const MySketch = () => (p: p5) => {
                 }
             }
 
+            */
+
             p.push();
             let color = [255, 255, 255];
             if ( particle.collided ) {
@@ -413,12 +423,11 @@ export const MySketch = () => (p: p5) => {
             p.push();
             p.noFill();
             p.stroke(255, 0, 0)
-            p.circle(particle.position.x, particle.position.y, 2 * influenceRadius);
+            //p.circle(particle.position.x, particle.position.y, 2 * influenceRadius);
             p.pop();
             p.push();
-            p.fill(0);
-            p.text(`${particle.position.x}`, particle.position.x, particle.position.y);
-            p.text(`${particle.position.y}`, particle.position.x, particle.position.y + 10);
+            p.fill([0, 255, 0]);
+            //p.text(`${particleIndex}`, particle.position.x, particle.position.y);
             p.pop();
             // Draw normal direction
             p.push();
@@ -430,7 +439,7 @@ export const MySketch = () => (p: p5) => {
             p.push();
             p.fill([0, 0, 0])
             p.stroke([0, 255, 0])
-            p.line(particle.position.x, particle.position.y, particle.position.x + particle.velocity.x*50, particle.position.y + particle.velocity.y*50);
+            //p.line(particle.position.x, particle.position.y, particle.position.x + particle.velocity.x*5, particle.position.y + particle.velocity.y*5);
             p.pop();
 
 
