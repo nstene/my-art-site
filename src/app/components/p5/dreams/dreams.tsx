@@ -115,7 +115,7 @@ export const MySketch = () => (p: p5) => {
     p.preload = () => {
         loadingMessage = p.createP('Loading... Please wait.');
         loadingMessage.position(p.windowWidth / 2 - 100, p.windowHeight / 2);
-        sound = p.loadSound('/music/Cenizas-006-NicolasJaar-Mud.wav', onLoadComplete);
+        sound = p.loadSound('/music/Cenizas-006-NicolasJaar-Mud.mp3', onLoadComplete);
     };
 
     function onLoadComplete() {
