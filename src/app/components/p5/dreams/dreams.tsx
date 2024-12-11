@@ -8,7 +8,9 @@ export const MySketch = () => (p: p5) => {
     const linesVibrationFactor = 1 / 25;
     const circlesVibrationFactor = 1 / 15;
     const radiusBeatingFactor = 1 / 2;
-    const structureRadius = 320;
+    const baseRadius = 320; // Original structure radius
+    const scaleFactor = Math.min(p.windowWidth, p.windowHeight) / 1000; // Scale based on the smaller screen dimension
+    const structureRadius = baseRadius * scaleFactor; // Adjusted structure radius
 
     type AnalysisData = {
         [name: string]: {
