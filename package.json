@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.5",
+    "curl": "^0.1.4",
     "express": "^4.21.2",
     "googleapis": "^144.0.0",
     "mathjs": "^13.2.1",
