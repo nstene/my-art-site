@@ -9,8 +9,21 @@ export const MySketch = () => (p: p5) => {
     const circlesVibrationFactor = 1 / 15;
     const radiusBeatingFactor = 1 / 2;
     const baseRadius = 320; // Original structure radius
+    let frequencyMagnifier = 2;
+
+    function isMobileDevice() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        return /iphone|ipod|android|blackberry|windows phone|webos|mobile/.test(userAgent);
+    }
+
+
     const scaleFactor = Math.min(p.windowWidth, p.windowHeight) / 1000; // Scale based on the smaller screen dimension
-    const structureRadius = baseRadius * scaleFactor; // Adjusted structure radius
+    let structureRadius = baseRadius * scaleFactor; // Adjusted structure radius
+
+    if ( isMobileDevice() ) {
+        structureRadius = structureRadius * 0.8;
+        frequencyMagnifier = 1;
+    }
 
     type AnalysisData = {
         [name: string]: {
@@ -179,7 +192,7 @@ export const MySketch = () => (p: p5) => {
         let index = Math.floor(p.random(0, spots.length - 1));
         // Place circles around the structure circle
         for (const [name, data] of sortedPeople) {
-            const radius = data.frequency * 2;
+            const radius = data.frequency * frequencyMagnifier;
 
             // Check if the spot is already taken. If it is, go further
             let k = 0;
