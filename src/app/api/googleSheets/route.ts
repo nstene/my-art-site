@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 // Define the required scopes and the Google Sheets range
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const SPREADSHEET_ID = '1pG3gYKwWoBr3zRNwajz7recXSjYWL036J4d3TDBR-qM';  // Replace with your Google Sheets ID
-const RANGE = 'A:G';  // Replace with your desired sheet range
+const RANGE = 'A2:G';  // Replace with your desired sheet range
 
 // Path to your service account credentials file
 const KEY_PATH = "C:\\Users\\natha\\Downloads\\ouroboros-nathan-website-6a3f32d230d7.json";
