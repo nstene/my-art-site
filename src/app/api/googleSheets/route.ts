@@ -6,6 +6,8 @@ const SPREADSHEET_ID = '1pG3gYKwWoBr3zRNwajz7recXSjYWL036J4d3TDBR-qM';  // Repla
 const RANGE = 'A2:G';  // Replace with your desired sheet range
 
 const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}');
+console.log('API Route Hit');
+console.log('Environment Variable:', process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 // Google Sheets API function to get data
 export async function GET() {
