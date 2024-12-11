@@ -25,10 +25,9 @@ export const MySketch = () => (p: p5) => {
         minDate: '',
         maxDate: ''
     };
-    let edges: { source: string, target: string, count: number }[] = [];
+    const edges: { source: string, target: string, count: number }[] = [];
     const frameRate = 24;
-    let dataLoaded = false;
-    let circles: { [key: string]: Circle } = {};
+    const circles: { [key: string]: Circle } = {};
 
     class Position {
         r: number;
@@ -100,7 +99,6 @@ export const MySketch = () => (p: p5) => {
                 console.log(rawData);
                 analyzedDreamData = rawData['analysis'];
                 metadata = rawData['metadata'];
-                dataLoaded = true;
                 return { analyzedDreamData, metadata }
             }
         } catch (error) {
@@ -167,7 +165,7 @@ export const MySketch = () => (p: p5) => {
 
         // Initiate possible positions for the circles
         let theta = 0;
-        let spots: Position[] = [];
+        const spots: Position[] = [];
         const spacingAngle = 360 / sortedPeople.length;
         for (let i = 0; i < sortedPeople.length; i++) {
             const position = new Position(structureRadius, theta);
@@ -175,7 +173,7 @@ export const MySketch = () => (p: p5) => {
             theta += spacingAngle;
         };
 
-        let takenIndices = new Set();
+        const takenIndices = new Set();
         let index = Math.floor(p.random(0, spots.length - 1));
         // Place circles around the structure circle
         for (const [name, data] of sortedPeople) {
@@ -209,15 +207,10 @@ export const MySketch = () => (p: p5) => {
         const dtheta = 360 / periodFrames;
 
         // Analyze audio frequencies
-        const spectrum = fft.analyze(); // Array of frequency amplitudes (0-255)
+        fft.analyze(); // Array of frequency amplitudes (0-255)
         const bass = fft.getEnergy('bass');
         const treble = fft.getEnergy('treble');
         const mid = fft.getEnergy("mid");
-
-        // Normalize for more stable visuals
-        const mapBass = p.map(bass, 0, 50, -100, 100);
-        const mapMid = p.map(mid, 0, 50, -150, 150);
-        const mapTreble = p.map(treble, 0, 50, -200, 200);
 
         // Display metadata
         p.push();
@@ -241,13 +234,13 @@ export const MySketch = () => (p: p5) => {
         if (isPlaying) {
             const radiusOffset = bass * radiusBeatingFactor;
 
-            for (let circle of Object.values(circles)) {
+            for (const circle of Object.values(circles)) {
                 circle.move(radiusOffset, dtheta);
             };
         }
 
         // Draw circles
-        for (let circle of Object.values(circles)) {
+        for (const circle of Object.values(circles)) {
 
             let vibration = 0;
             if (isPlaying) {
@@ -270,7 +263,7 @@ export const MySketch = () => (p: p5) => {
         };
 
         // Draw links
-        for (let link of edges) {
+        for (const link of edges) {
             const sourceCircle = circles[link.source];
             const targetCircle = circles[link.target];
 
@@ -300,7 +293,7 @@ export const MySketch = () => (p: p5) => {
         if (isPlaying) {
             const radiusOffset = bass * radiusBeatingFactor;
 
-            for (let circle of Object.values(circles)) {
+            for (const circle of Object.values(circles)) {
                 circle.move(-radiusOffset, 0);
             };
         }
