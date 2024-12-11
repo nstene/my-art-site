@@ -158,16 +158,26 @@ export const MySketch = () => (p: p5) => {
         p.createCanvas(p.windowWidth, window.innerHeight);
         p.frameRate(frameRate);
 
+        let fullScreenButtonPosition = 150;
+        if ( isMobileDevice() ) {
+            fullScreenButtonPosition = 100;
+        }
+
+        let playPauseButtonPosition = 100;
+        if ( isMobileDevice() ) {
+            playPauseButtonPosition = 50;
+        }
+
         // Create button for full screen mode
         fullscreenButton = p.createButton('Full Screen');
-        fullscreenButton.position(0, 150);
+        fullscreenButton.position(0, fullScreenButtonPosition);
         fullscreenButton.mousePressed(toggleFullScreen);
 
         // Sound stuff
         fft = new p5.FFT(0.9, 512);
         // Create play button
         playPauseButton = p.createButton('Play');
-        playPauseButton.position(0, 100);
+        playPauseButton.position(0, playPauseButtonPosition);
         playPauseButton.mousePressed(togglePlayPause);
 
         // Ensure some data is returned
@@ -231,7 +241,13 @@ export const MySketch = () => (p: p5) => {
         p.push();
         p.fill(255);
         p.textAlign(p.CENTER);
-        p.textSize(15);
+        let textSize = 15;
+        let textOffset = 100;
+        if ( isMobileDevice() ) {
+            textSize = 8;
+            textOffset = 50;
+        }
+        p.textSize(textSize);
         p.text(`Dreams: ${metadata.dreamCount}\nBetween ${metadata.minDate}\nand ${metadata.maxDate}`,
             p.width - 100,
             p.height - 100);
@@ -242,7 +258,7 @@ export const MySketch = () => (p: p5) => {
         p.noStroke();
         p.fill('white');
         const text = "Jaar, Nicolas. 'Mud' Cenizas. https://www.jaar.site/";
-        p.text(text, 0, p.windowHeight - 5);
+        p.text(text, 5, p.windowHeight - 5);
         p.pop();
 
         // Move objects if music is playing
