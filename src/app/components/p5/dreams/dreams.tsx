@@ -249,8 +249,8 @@ export const MySketch = () => (p: p5) => {
         }
         p.textSize(textSize);
         p.text(`Dreams: ${metadata.dreamCount}\nBetween ${metadata.minDate}\nand ${metadata.maxDate}`,
-            p.width - 100,
-            p.height - 100);
+            p.width - textOffset,
+            p.height - textOffset);
         p.pop();
 
         // Credits
