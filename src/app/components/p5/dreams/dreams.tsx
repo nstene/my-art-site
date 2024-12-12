@@ -3,9 +3,15 @@ import 'p5/lib/addons/p5.sound';
 
 export const MySketch = () => (p: p5) => {
     let isPlaying = false;
+    let aboutIsShowing = false;
     let fullscreenButton: p5.Element;
     let loadingMessage: p5.Element;
     let loadingDreamsMessage: p5.Element;
+    let playPauseButton: p5.Element;
+    let aboutButton: p5.Element;
+    let sound: p5.SoundFile;
+    let fft: p5.FFT;
+    let spaceMono: any;
     const linesVibrationFactor = 1 / 25;
     const circlesVibrationFactor = 1 / 20;
     const baseRadius = 320; // Original structure radius
@@ -13,11 +19,16 @@ export const MySketch = () => (p: p5) => {
     const maxStructureRadiusRatio = 1.3;
     const lerpSpeed = 0.7; // Adjust the smoothing speed (lower = smoother)
 
+    const aboutDreamsText = '"Dreams" is the result of analyzing my actual dream journal\'s content. \nThe circles represent the people that have been appearing in them. \nThe circle radius is proportional to their appearances.\nThe links show when people appeared together in the same dream.\n Hover on a circle to see who it is.';
+
     function isMobileDevice() {
         const userAgent = navigator.userAgent.toLowerCase();
         return /iphone|ipod|android|blackberry|windows phone|webos|mobile/.test(userAgent);
     }
 
+    function capitalizeFirstLetter(val: string) {
+        return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+    }
 
     const scaleFactor = Math.min(p.windowWidth, p.windowHeight) / 1000; // Scale based on the smaller screen dimension
     let structureRadius = baseRadius * scaleFactor; // Adjusted structure radius
@@ -68,7 +79,7 @@ export const MySketch = () => (p: p5) => {
         constructor(radius: number, position: Position, name: string) {
             this.position = position;
             this.radius = radius;
-            this.name = name;
+            this.name = capitalizeFirstLetter(name);
             this.hoverTimestamp = 0;
         }
 
@@ -134,10 +145,6 @@ export const MySketch = () => (p: p5) => {
 
     const sigmoid = (x: number) => 1 / (1 + Math.exp(-0.05 * (x - 220))); // Adjust slope (0.05) and center (128)
 
-    let sound: p5.SoundFile;
-    let fft: p5.FFT;
-    let spaceMono: any;
-
     p.preload = () => {
         spaceMono = p.loadFont('/fonts/SpaceMono-Regular.ttf');
         loadingMessage = p.createP('Loading music... Please wait.');
@@ -154,8 +161,6 @@ export const MySketch = () => (p: p5) => {
         p.fullscreen(!isFullScreen); // Toggle full-screen mode
     }
 
-    let playPauseButton: p5.Element;
-
     function togglePlayPause() {
         if (isPlaying) {
             sound.pause();
@@ -168,19 +173,34 @@ export const MySketch = () => (p: p5) => {
         }
     }
 
+    function toggleAbout() {
+        if (aboutIsShowing) {
+            // Close about window
+            aboutIsShowing = false;
+        } else {
+            // About is not yet showing, open about window
+            aboutIsShowing = true;
+        }
+    }
+
     p.setup = async () => {
         p.createCanvas(p.windowWidth, window.innerHeight);
         p.frameRate(frameRate);
         p.textFont(spaceMono);
+
+        let playPauseButtonPosition = 100;
+        if (isMobileDevice()) {
+            playPauseButtonPosition = 50;
+        }
 
         let fullScreenButtonPosition = 150;
         if (isMobileDevice()) {
             fullScreenButtonPosition = 100;
         }
 
-        let playPauseButtonPosition = 100;
+        let aboutButtonPosition = 200;
         if (isMobileDevice()) {
-            playPauseButtonPosition = 50;
+            aboutButtonPosition = 150;
         }
 
         // Create button for full screen mode
@@ -194,6 +214,11 @@ export const MySketch = () => (p: p5) => {
         playPauseButton = p.createButton('Play');
         playPauseButton.position(0, playPauseButtonPosition);
         playPauseButton.mousePressed(togglePlayPause);
+
+        // Create about button
+        aboutButton = p.createButton('About "Dreams"');
+        aboutButton.position(0, aboutButtonPosition);
+        aboutButton.mousePressed(toggleAbout);
 
         // Ensure some data is returned
         loadingDreamsMessage = p.createP('Loading dreams... Please wait.');
@@ -357,6 +382,25 @@ export const MySketch = () => (p: p5) => {
             for (const circle of Object.values(circles)) {
                 circle.move(-radiusOffset, 0);
             };
+        }
+
+        // Check if the About window should be shown
+        if (aboutIsShowing) {
+            // Draw the About window with a black background and some transparency
+            p.push();
+            p.fill(0, 0, 0, 200);  // Black color with transparency (alpha = 150)
+            p.noStroke();
+            p.rectMode(p.CENTER);
+            p.rect(p.width / 2, p.height / 2, 2*structureRadius, structureRadius, 20);  // Rectangular window with rounded corners
+            p.pop();
+
+            // Add the white text inside the window
+            p.push();
+            p.fill(255);  // White text
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(12);
+            p.text(aboutDreamsText, p.width / 2, p.height / 2);
+            p.pop();
         }
     };
 
