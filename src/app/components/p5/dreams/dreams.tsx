@@ -13,13 +13,13 @@ export const MySketch = () => (p: p5) => {
     let fft: p5.FFT;
     let spaceMono: p5.Font;
     const linesVibrationFactor = 1 / 25;
-    const circlesVibrationFactor = 1 / 20;
-    const baseRadius = 320; // Original structure radius
+    const baseRadius = 350; // Original structure radius
     let frequencyMagnifier = 2;
-    const maxStructureRadiusRatio = 1.3;
+    const maxStructureRadiusRatio = 1.5;
     const lerpSpeed = 0.7; // Adjust the smoothing speed (lower = smoother)
+    const maxCircleRadiusGrowthFactor = 2;
 
-    const aboutDreamsText = '"Dreams" is the result of analyzing my actual dream journal\'s content. \nThe circles represent the people that have been appearing in them. \nThe circle radius is proportional to their appearances.\nThe links show when people appeared together in the same dream.\n Hover on a circle to see who it is.';
+    const aboutDreamsText = '"Dreams" is the result of analyzing my actual\ndream journal\'s content.\nThe circles represent the people\nthat have been appearing in them. \nThe circle radius is proportional to their appearances.\nThe links show when people\nappeared together in the same dream.\n Hover on a circle to see who it is.';
 
     function isMobileDevice() {
         const userAgent = navigator.userAgent.toLowerCase();
@@ -83,11 +83,11 @@ export const MySketch = () => (p: p5) => {
             this.hoverTimestamp = 0;
         }
 
-        draw(vibration: number) {
+        draw(vibrationFactor: number) {
             const x = this.position.r * Math.cos(p.radians(this.position.theta)) + p.width / 2;
             const y = this.position.r * Math.sin(p.radians(this.position.theta)) + p.height / 2;
             p.fill(255);
-            p.circle(x, y, this.radius * 2 + vibration);
+            p.circle(x, y, this.radius * 2 * vibrationFactor);
         }
 
         move(dr: number, dtheta: number) {
@@ -189,24 +189,21 @@ export const MySketch = () => (p: p5) => {
         p.textFont(spaceMono);
 
         let playPauseButtonPosition = 100;
-        if (isMobileDevice()) {
-            playPauseButtonPosition = 50;
-        }
-
         let fullScreenButtonPosition = 150;
-        if (isMobileDevice()) {
-            fullScreenButtonPosition = 100;
-        }
-
         let aboutButtonPosition = 200;
+        let fontSize = '18px';
         if (isMobileDevice()) {
             aboutButtonPosition = 150;
+            fullScreenButtonPosition = 100;
+            playPauseButtonPosition = 50;
+            fontSize = '12px';
         }
 
         // Create button for full screen mode
         fullscreenButton = p.createButton('Full Screen');
         fullscreenButton.position(0, fullScreenButtonPosition);
         fullscreenButton.mousePressed(toggleFullScreen);
+        fullscreenButton.style('font-size', fontSize);
 
         // Sound stuff
         fft = new p5.FFT(0.9, 512);
@@ -214,11 +211,13 @@ export const MySketch = () => (p: p5) => {
         playPauseButton = p.createButton('Play');
         playPauseButton.position(0, playPauseButtonPosition);
         playPauseButton.mousePressed(togglePlayPause);
+        playPauseButton.style('font-size', fontSize);
 
         // Create about button
         aboutButton = p.createButton('About "Dreams"');
         aboutButton.position(0, aboutButtonPosition);
         aboutButton.mousePressed(toggleAbout);
+        aboutButton.style('font-size', fontSize);
 
         // Ensure some data is returned
         loadingDreamsMessage = p.createP('Loading dreams... Please wait.');
@@ -252,7 +251,7 @@ export const MySketch = () => (p: p5) => {
         let index = Math.floor(p.random(0, spots.length - 1));
         // Place circles around the structure circle
         for (const [name, data] of sortedPeople) {
-            const radius = data.frequency * frequencyMagnifier;
+            const radius = Math.max(2, data.frequency * frequencyMagnifier);
 
             // Check if the spot is already taken. If it is, go further
             let k = 0;
@@ -289,16 +288,20 @@ export const MySketch = () => (p: p5) => {
         const mid = fft.getEnergy("mid");
 
         // Normalize the bass such that instead of going from 0 to 255, it goes from 0 to dR
-        const mapBass = p.map(adjustedBass, 0, 255, 0, maxStructureRadiusGrowth);
+        const mapBass = p.map(adjustedBass, 0, 255, 0, maxStructureRadiusGrowth); // becomes a radius growth between 0 and maxStructureRadiusGrowth
+        const mapMid = p.map(mid, 0, 255, 1, maxCircleRadiusGrowthFactor); // becomes a vibration factor between 1 and maxCircleRadiusGrowthFactor
+
+        let textSize = 15;
+        if (isMobileDevice()) {
+            textSize = 8;
+        }
 
         // Display metadata
         p.push();
         p.fill(255);
         p.textAlign(p.CENTER);
-        let textSize = 15;
         let textOffset = 100;
         if (isMobileDevice()) {
-            textSize = 8;
             textOffset = 50;
         }
         p.textSize(textSize);
@@ -311,6 +314,7 @@ export const MySketch = () => (p: p5) => {
         p.push();
         p.noStroke();
         p.textFont(spaceMono);
+        p.textSize(textSize);
         p.fill('white');
         const text = "Jaar, Nicolas. 'Mud' Cenizas. https://www.jaar.site/";
         p.text(text, 5, p.windowHeight - 5);
@@ -328,16 +332,16 @@ export const MySketch = () => (p: p5) => {
         // Draw circles
         for (const circle of Object.values(circles)) {
 
-            let vibration = 0;
+            let vibrationFactor = 1;
             if (isPlaying) {
-                vibration = mid * circlesVibrationFactor;
+                vibrationFactor = mapMid;
             }
 
             if (circle.isHovered()) {
                 circle.updateHoverTimestamp(); // Update hover timestamp when hovered
             }
 
-            circle.draw(vibration);
+            circle.draw(vibrationFactor);
             if (circle.shouldDisplayText()) {
                 p.push();
                 p.fill(255);
@@ -398,7 +402,7 @@ export const MySketch = () => (p: p5) => {
             p.push();
             p.fill(255);  // White text
             p.textAlign(p.CENTER, p.CENTER);
-            p.textSize(12);
+            p.textSize(textSize);
             p.text(aboutDreamsText, p.width / 2, p.height / 2);
             p.pop();
         }
