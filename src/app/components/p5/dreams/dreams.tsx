@@ -11,7 +11,7 @@ export const MySketch = () => (p: p5) => {
     let aboutButton: p5.Element;
     let sound: p5.SoundFile;
     let fft: p5.FFT;
-    let spaceMono: any;
+    let spaceMono: p5.Font;
     const linesVibrationFactor = 1 / 25;
     const circlesVibrationFactor = 1 / 20;
     const baseRadius = 320; // Original structure radius
