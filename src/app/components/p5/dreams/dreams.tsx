@@ -18,8 +18,8 @@ export const MySketch = () => (p: p5) => {
     const maxStructureRadiusRatio = 1.5;
     const lerpSpeed = 0.7; // Adjust the smoothing speed (lower = smoother)
     const maxCircleRadiusGrowthFactor = 2;
-
     const aboutDreamsText = '"Dreams" is the result of analyzing my actual\ndream journal\'s content.\nThe circles represent the people\nthat have been appearing in them. \nThe circle radius is proportional to their appearances.\nThe links show when people\nappeared together in the same dream.\n Hover on a circle to see who it is.';
+    let loadingMessageFontSize = '16px';
 
     function isMobileDevice() {
         const userAgent = navigator.userAgent.toLowerCase();
@@ -35,6 +35,7 @@ export const MySketch = () => (p: p5) => {
 
     if (isMobileDevice()) {
         frequencyMagnifier = 1;
+        loadingMessageFontSize = '12px';
     }
 
     const maxStructureRadius = structureRadius * maxStructureRadiusRatio;
@@ -148,6 +149,7 @@ export const MySketch = () => (p: p5) => {
         spaceMono = p.loadFont('/fonts/SpaceMono-Regular.ttf');
         loadingMessage = p.createP('Loading music... Please wait.');
         loadingMessage.position(p.windowWidth / 2 - 100, p.windowHeight / 2);
+        loadingMessage.style('font-size', loadingMessageFontSize);
         sound = p.loadSound('/music/Cenizas-006-NicolasJaar-Mud.mp3', onLoadComplete);
     };
 
@@ -221,6 +223,7 @@ export const MySketch = () => (p: p5) => {
         // Ensure some data is returned
         loadingDreamsMessage = p.createP('Loading dreams... Please wait.');
         loadingDreamsMessage.position(p.windowWidth / 2 - 100, p.windowHeight / 2);
+        loadingDreamsMessage.style('font-size', loadingMessageFontSize)
         const data = await fetchAnalysis();
         if (data) {
             console.log('Dream data loaded:', data);
