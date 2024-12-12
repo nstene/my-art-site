@@ -3,27 +3,43 @@ import 'p5/lib/addons/p5.sound';
 
 export const MySketch = () => (p: p5) => {
     let isPlaying = false;
+    let aboutIsShowing = false;
     let fullscreenButton: p5.Element;
     let loadingMessage: p5.Element;
+    let loadingDreamsMessage: p5.Element;
+    let playPauseButton: p5.Element;
+    let aboutButton: p5.Element;
+    let sound: p5.SoundFile;
+    let fft: p5.FFT;
+    let spaceMono: p5.Font;
     const linesVibrationFactor = 1 / 25;
-    const circlesVibrationFactor = 1 / 15;
-    const radiusBeatingFactor = 1 / 2;
+    const circlesVibrationFactor = 1 / 20;
     const baseRadius = 320; // Original structure radius
     let frequencyMagnifier = 2;
+    const maxStructureRadiusRatio = 1.3;
+    const lerpSpeed = 0.7; // Adjust the smoothing speed (lower = smoother)
+
+    const aboutDreamsText = '"Dreams" is the result of analyzing my actual dream journal\'s content. \nThe circles represent the people that have been appearing in them. \nThe circle radius is proportional to their appearances.\nThe links show when people appeared together in the same dream.\n Hover on a circle to see who it is.';
 
     function isMobileDevice() {
         const userAgent = navigator.userAgent.toLowerCase();
         return /iphone|ipod|android|blackberry|windows phone|webos|mobile/.test(userAgent);
     }
 
+    function capitalizeFirstLetter(val: string) {
+        return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+    }
 
     const scaleFactor = Math.min(p.windowWidth, p.windowHeight) / 1000; // Scale based on the smaller screen dimension
     let structureRadius = baseRadius * scaleFactor; // Adjusted structure radius
 
-    if ( isMobileDevice() ) {
+    if (isMobileDevice()) {
         structureRadius = structureRadius * 0.8;
         frequencyMagnifier = 1;
     }
+
+    const maxStructureRadius = structureRadius * maxStructureRadiusRatio;
+    const maxStructureRadiusGrowth = maxStructureRadius - structureRadius;
 
     type AnalysisData = {
         [name: string]: {
@@ -63,7 +79,7 @@ export const MySketch = () => (p: p5) => {
         constructor(radius: number, position: Position, name: string) {
             this.position = position;
             this.radius = radius;
-            this.name = name;
+            this.name = capitalizeFirstLetter(name);
             this.hoverTimestamp = 0;
         }
 
@@ -76,7 +92,12 @@ export const MySketch = () => (p: p5) => {
 
         move(dr: number, dtheta: number) {
             this.position.theta += dtheta;
-            this.position.r += dr;
+
+            // Avoid jumps in radius moving
+            const currentRadius = this.position.r;
+            const targetRadius = this.position.r + dr;
+
+            this.position.r = p.lerp(currentRadius, targetRadius, lerpSpeed);
         }
 
         getX(): number {
@@ -122,11 +143,11 @@ export const MySketch = () => (p: p5) => {
         }
     };
 
-    let sound: p5.SoundFile;
-    let fft: p5.FFT;
+    const sigmoid = (x: number) => 1 / (1 + Math.exp(-0.05 * (x - 220))); // Adjust slope (0.05) and center (128)
 
     p.preload = () => {
-        loadingMessage = p.createP('Loading... Please wait.');
+        spaceMono = p.loadFont('/fonts/SpaceMono-Regular.ttf');
+        loadingMessage = p.createP('Loading music... Please wait.');
         loadingMessage.position(p.windowWidth / 2 - 100, p.windowHeight / 2);
         sound = p.loadSound('/music/Cenizas-006-NicolasJaar-Mud.mp3', onLoadComplete);
     };
@@ -140,8 +161,6 @@ export const MySketch = () => (p: p5) => {
         p.fullscreen(!isFullScreen); // Toggle full-screen mode
     }
 
-    let playPauseButton: p5.Element;
-
     function togglePlayPause() {
         if (isPlaying) {
             sound.pause();
@@ -154,18 +173,34 @@ export const MySketch = () => (p: p5) => {
         }
     }
 
+    function toggleAbout() {
+        if (aboutIsShowing) {
+            // Close about window
+            aboutIsShowing = false;
+        } else {
+            // About is not yet showing, open about window
+            aboutIsShowing = true;
+        }
+    }
+
     p.setup = async () => {
         p.createCanvas(p.windowWidth, window.innerHeight);
         p.frameRate(frameRate);
+        p.textFont(spaceMono);
+
+        let playPauseButtonPosition = 100;
+        if (isMobileDevice()) {
+            playPauseButtonPosition = 50;
+        }
 
         let fullScreenButtonPosition = 150;
-        if ( isMobileDevice() ) {
+        if (isMobileDevice()) {
             fullScreenButtonPosition = 100;
         }
 
-        let playPauseButtonPosition = 100;
-        if ( isMobileDevice() ) {
-            playPauseButtonPosition = 50;
+        let aboutButtonPosition = 200;
+        if (isMobileDevice()) {
+            aboutButtonPosition = 150;
         }
 
         // Create button for full screen mode
@@ -180,9 +215,24 @@ export const MySketch = () => (p: p5) => {
         playPauseButton.position(0, playPauseButtonPosition);
         playPauseButton.mousePressed(togglePlayPause);
 
+        // Create about button
+        aboutButton = p.createButton('About "Dreams"');
+        aboutButton.position(0, aboutButtonPosition);
+        aboutButton.mousePressed(toggleAbout);
+
         // Ensure some data is returned
+        loadingDreamsMessage = p.createP('Loading dreams... Please wait.');
+        loadingDreamsMessage.position(p.windowWidth / 2 - 100, p.windowHeight / 2);
         const data = await fetchAnalysis();
-        if (!data) return;
+        if (data) {
+            console.log('Dream data loaded:', data);
+            // Remove the loading message once data is fetched
+            loadingDreamsMessage.remove();
+        } else {
+            // Handle case where data fetching fails
+            loadingDreamsMessage.html('Failed to load dreams. Please try again later.');
+            return
+        }
 
         // Sort circles by frequency in descending order
         const sortedPeople = Object.entries(analyzedDreamData)
@@ -233,9 +283,13 @@ export const MySketch = () => (p: p5) => {
 
         // Analyze audio frequencies
         fft.analyze(); // Array of frequency amplitudes (0-255)
-        const bass = fft.getEnergy('bass');
+        const lowMid = fft.getEnergy('lowMid');
+        const adjustedBass = sigmoid(lowMid) * 255;
         const treble = fft.getEnergy('treble');
         const mid = fft.getEnergy("mid");
+
+        // Normalize the bass such that instead of going from 0 to 255, it goes from 0 to dR
+        const mapBass = p.map(adjustedBass, 0, 255, 0, maxStructureRadiusGrowth);
 
         // Display metadata
         p.push();
@@ -243,7 +297,7 @@ export const MySketch = () => (p: p5) => {
         p.textAlign(p.CENTER);
         let textSize = 15;
         let textOffset = 100;
-        if ( isMobileDevice() ) {
+        if (isMobileDevice()) {
             textSize = 8;
             textOffset = 50;
         }
@@ -256,6 +310,7 @@ export const MySketch = () => (p: p5) => {
         // Credits
         p.push();
         p.noStroke();
+        p.textFont(spaceMono);
         p.fill('white');
         const text = "Jaar, Nicolas. 'Mud' Cenizas. https://www.jaar.site/";
         p.text(text, 5, p.windowHeight - 5);
@@ -263,7 +318,7 @@ export const MySketch = () => (p: p5) => {
 
         // Move objects if music is playing
         if (isPlaying) {
-            const radiusOffset = bass * radiusBeatingFactor;
+            const radiusOffset = mapBass;
 
             for (const circle of Object.values(circles)) {
                 circle.move(radiusOffset, dtheta);
@@ -322,11 +377,30 @@ export const MySketch = () => (p: p5) => {
 
         // Move back circles to original radius when they have been beating with the music
         if (isPlaying) {
-            const radiusOffset = bass * radiusBeatingFactor;
+            const radiusOffset = mapBass;
 
             for (const circle of Object.values(circles)) {
                 circle.move(-radiusOffset, 0);
             };
+        }
+
+        // Check if the About window should be shown
+        if (aboutIsShowing) {
+            // Draw the About window with a black background and some transparency
+            p.push();
+            p.fill(0, 0, 0, 200);  // Black color with transparency (alpha = 150)
+            p.noStroke();
+            p.rectMode(p.CENTER);
+            p.rect(p.width / 2, p.height / 2, 2*structureRadius, structureRadius, 20);  // Rectangular window with rounded corners
+            p.pop();
+
+            // Add the white text inside the window
+            p.push();
+            p.fill(255);  // White text
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(12);
+            p.text(aboutDreamsText, p.width / 2, p.height / 2);
+            p.pop();
         }
     };
 
