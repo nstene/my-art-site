@@ -13,7 +13,7 @@ export const MySketch = () => (p: p5) => {
     let fft: p5.FFT;
     let spaceMono: p5.Font;
     const linesVibrationFactor = 1 / 25;
-    const baseRadius = 350; // Original structure radius
+    const baseRadius = 370; // Original structure radius
     let frequencyMagnifier = 2;
     const maxStructureRadiusRatio = 1.5;
     const lerpSpeed = 0.7; // Adjust the smoothing speed (lower = smoother)
@@ -31,10 +31,9 @@ export const MySketch = () => (p: p5) => {
     }
 
     const scaleFactor = Math.min(p.windowWidth, p.windowHeight) / 1000; // Scale based on the smaller screen dimension
-    let structureRadius = baseRadius * scaleFactor; // Adjusted structure radius
+    const structureRadius = baseRadius * scaleFactor; // Adjusted structure radius
 
     if (isMobileDevice()) {
-        structureRadius = structureRadius * 0.8;
         frequencyMagnifier = 1;
     }
 
