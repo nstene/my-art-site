@@ -7,10 +7,11 @@ export const MySketch = () => (p: p5) => {
     let loadingMessage: p5.Element;
     let loadingDreamsMessage: p5.Element;
     const linesVibrationFactor = 1 / 25;
-    const circlesVibrationFactor = 1 / 15;
-    const radiusBeatingFactor = 1 / 2;
+    const circlesVibrationFactor = 1 / 20;
     const baseRadius = 320; // Original structure radius
     let frequencyMagnifier = 2;
+    const maxStructureRadiusRatio = 1.3;
+    const lerpSpeed = 0.7; // Adjust the smoothing speed (lower = smoother)
 
     function isMobileDevice() {
         const userAgent = navigator.userAgent.toLowerCase();
@@ -21,10 +22,13 @@ export const MySketch = () => (p: p5) => {
     const scaleFactor = Math.min(p.windowWidth, p.windowHeight) / 1000; // Scale based on the smaller screen dimension
     let structureRadius = baseRadius * scaleFactor; // Adjusted structure radius
 
-    if ( isMobileDevice() ) {
+    if (isMobileDevice()) {
         structureRadius = structureRadius * 0.8;
         frequencyMagnifier = 1;
     }
+
+    const maxStructureRadius = structureRadius * maxStructureRadiusRatio;
+    const maxStructureRadiusGrowth = maxStructureRadius - structureRadius;
 
     type AnalysisData = {
         [name: string]: {
@@ -77,7 +81,12 @@ export const MySketch = () => (p: p5) => {
 
         move(dr: number, dtheta: number) {
             this.position.theta += dtheta;
-            this.position.r += dr;
+
+            // Avoid jumps in radius moving
+            const currentRadius = this.position.r;
+            const targetRadius = this.position.r + dr;
+
+            this.position.r = p.lerp(currentRadius, targetRadius, lerpSpeed);
         }
 
         getX(): number {
@@ -123,10 +132,14 @@ export const MySketch = () => (p: p5) => {
         }
     };
 
+    const sigmoid = (x: number) => 1 / (1 + Math.exp(-0.05 * (x - 220))); // Adjust slope (0.05) and center (128)
+
     let sound: p5.SoundFile;
     let fft: p5.FFT;
+    let spaceMono: any;
 
     p.preload = () => {
+        spaceMono = p.loadFont('/fonts/SpaceMono-Regular.ttf');
         loadingMessage = p.createP('Loading music... Please wait.');
         loadingMessage.position(p.windowWidth / 2 - 100, p.windowHeight / 2);
         sound = p.loadSound('/music/Cenizas-006-NicolasJaar-Mud.mp3', onLoadComplete);
@@ -158,14 +171,15 @@ export const MySketch = () => (p: p5) => {
     p.setup = async () => {
         p.createCanvas(p.windowWidth, window.innerHeight);
         p.frameRate(frameRate);
+        p.textFont(spaceMono);
 
         let fullScreenButtonPosition = 150;
-        if ( isMobileDevice() ) {
+        if (isMobileDevice()) {
             fullScreenButtonPosition = 100;
         }
 
         let playPauseButtonPosition = 100;
-        if ( isMobileDevice() ) {
+        if (isMobileDevice()) {
             playPauseButtonPosition = 50;
         }
 
@@ -244,9 +258,13 @@ export const MySketch = () => (p: p5) => {
 
         // Analyze audio frequencies
         fft.analyze(); // Array of frequency amplitudes (0-255)
-        const bass = fft.getEnergy('bass');
+        const lowMid = fft.getEnergy('lowMid');
+        const adjustedBass = sigmoid(lowMid) * 255;
         const treble = fft.getEnergy('treble');
         const mid = fft.getEnergy("mid");
+
+        // Normalize the bass such that instead of going from 0 to 255, it goes from 0 to dR
+        const mapBass = p.map(adjustedBass, 0, 255, 0, maxStructureRadiusGrowth);
 
         // Display metadata
         p.push();
@@ -254,7 +272,7 @@ export const MySketch = () => (p: p5) => {
         p.textAlign(p.CENTER);
         let textSize = 15;
         let textOffset = 100;
-        if ( isMobileDevice() ) {
+        if (isMobileDevice()) {
             textSize = 8;
             textOffset = 50;
         }
@@ -267,6 +285,7 @@ export const MySketch = () => (p: p5) => {
         // Credits
         p.push();
         p.noStroke();
+        p.textFont(spaceMono);
         p.fill('white');
         const text = "Jaar, Nicolas. 'Mud' Cenizas. https://www.jaar.site/";
         p.text(text, 5, p.windowHeight - 5);
@@ -274,7 +293,7 @@ export const MySketch = () => (p: p5) => {
 
         // Move objects if music is playing
         if (isPlaying) {
-            const radiusOffset = bass * radiusBeatingFactor;
+            const radiusOffset = mapBass;
 
             for (const circle of Object.values(circles)) {
                 circle.move(radiusOffset, dtheta);
@@ -333,7 +352,7 @@ export const MySketch = () => (p: p5) => {
 
         // Move back circles to original radius when they have been beating with the music
         if (isPlaying) {
-            const radiusOffset = bass * radiusBeatingFactor;
+            const radiusOffset = mapBass;
 
             for (const circle of Object.values(circles)) {
                 circle.move(-radiusOffset, 0);
