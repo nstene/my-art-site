@@ -5,6 +5,7 @@ export const MySketch = () => (p: p5) => {
     let isPlaying = false;
     let fullscreenButton: p5.Element;
     let loadingMessage: p5.Element;
+    let loadingDreamsMessage: p5.Element;
     const linesVibrationFactor = 1 / 25;
     const circlesVibrationFactor = 1 / 15;
     const radiusBeatingFactor = 1 / 2;
@@ -126,7 +127,7 @@ export const MySketch = () => (p: p5) => {
     let fft: p5.FFT;
 
     p.preload = () => {
-        loadingMessage = p.createP('Loading... Please wait.');
+        loadingMessage = p.createP('Loading music... Please wait.');
         loadingMessage.position(p.windowWidth / 2 - 100, p.windowHeight / 2);
         sound = p.loadSound('/music/Cenizas-006-NicolasJaar-Mud.mp3', onLoadComplete);
     };
@@ -181,8 +182,18 @@ export const MySketch = () => (p: p5) => {
         playPauseButton.mousePressed(togglePlayPause);
 
         // Ensure some data is returned
+        loadingDreamsMessage = p.createP('Loading dreams... Please wait.');
+        loadingDreamsMessage.position(p.windowWidth / 2 - 100, p.windowHeight / 2);
         const data = await fetchAnalysis();
-        if (!data) return;
+        if (data) {
+            console.log('Dream data loaded:', data);
+            // Remove the loading message once data is fetched
+            loadingDreamsMessage.remove();
+        } else {
+            // Handle case where data fetching fails
+            loadingDreamsMessage.html('Failed to load dreams. Please try again later.');
+            return
+        }
 
         // Sort circles by frequency in descending order
         const sortedPeople = Object.entries(analyzedDreamData)
