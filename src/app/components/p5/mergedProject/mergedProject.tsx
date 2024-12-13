@@ -13,6 +13,11 @@ export const MySketch = () => (p: p5) => {
   let stars: Star[];
   const minRadius = 1;
   const maxRadius = 2;
+  const shootingStarMaxRadius = maxRadius;
+  const shootingStarProbability = 1/100;
+  const shootingStarTrailLength = 1000;
+  const shootingStarMaxSpeed = 10;
+  let shootingStar: ShootingStar;
 
   // Stargazing stuff
   //___________________
@@ -53,6 +58,45 @@ export const MySketch = () => (p: p5) => {
       p.pop();
     }
   }
+
+  class ShootingStar extends Star {
+    direction: number; // direction in radians
+    speed: number; // speed of the shooting star
+    trailLength: number; // how far the trail should extend
+  
+    constructor(radius: number, position: Position, color: p5.Color, direction: number, speed: number, trailLength: number) {
+      super(radius, position, color); // Call the parent class constructor
+      this.direction = direction;
+      this.speed = speed;
+      this.trailLength = trailLength;
+    }
+  
+    move() {
+      // Move the shooting star based on speed and direction
+      this.position.x += this.speed * p.cos(this.direction);
+      this.position.y += this.speed * p.sin(this.direction);
+    }
+  
+    draw() {
+      p.push();
+      p.translate(width / 2, height / 2); // Center the drawing based on the canvas
+      p.rotate(p.radians(p.frameCount / 30)); // Optional: Rotate for a dynamic effect
+  
+      // Draw the trail first (if trailLength > 0)
+      for (let i = 0; i < this.trailLength; i++) {
+        const alpha = p.map(i, 0, this.trailLength, 255, 0); // Gradually fade the trail
+        p.fill(p.red(this.color), p.green(this.color), p.blue(this.color), alpha); // Fading effect for the trail
+        p.circle(this.position.x - this.speed * i * p.cos(this.direction), this.position.y - this.speed * i * p.sin(this.direction), this.radius);
+      }
+  
+      // Draw the star itself (shooting star)
+      p.fill(this.color);
+      p.circle(this.position.x, this.position.y, 2 * this.radius);
+  
+      p.pop();
+    }
+  }
+  
 
   const generateRandomStars = (n: number, half_width: number, half_height: number): Star[] => {
     const stars: Star[] = [];
@@ -105,6 +149,23 @@ export const MySketch = () => (p: p5) => {
     };
   };
 
+  const animateShootingStar = (probability: number) => {
+    // If there's already a shooting star, move it
+    if (shootingStar) {
+      shootingStar.draw();
+      shootingStar.move();
+    }
+    // Else, potentially create one with probability
+    if (p.random() <= shootingStarProbability) {
+      const shootingStarRadius = p.random(shootingStarMaxRadius);
+      const shootingStarPosition = new Position(p.random(p.width), p.random(p.height));
+      const shootingStarSpeed = p.random(0.5*shootingStarMaxSpeed, shootingStarMaxSpeed);
+      const shootingStarColor = p.color(255, 255, 255);
+      const shootingStarDirection = p.random(360);
+      shootingStar = new ShootingStar(shootingStarRadius, shootingStarPosition, shootingStarColor, shootingStarDirection, shootingStarSpeed, shootingStarTrailLength);
+    }
+  };
+
   // SOUND STUFF
   // _______________
 
@@ -114,7 +175,7 @@ export const MySketch = () => (p: p5) => {
   const rMax = Math.max(width / 3, height / 3);
   const rMin = 1;
   let elapsedSongTime = 0;
-  const frameRate = 60
+  const frameRate = 60;
   let isFinished = false;
 
   let ballSize = rMax;  // Initial ball size
@@ -213,6 +274,9 @@ export const MySketch = () => (p: p5) => {
 
     // populate stars
     drawStars(stars, twinkling);
+
+    // Shooting star
+    animateShootingStar(shootingStarProbability);
 
     p.translate(-width / 2, -height / 2);
     ({ x_pos, y_pos } = updatePositionNoise(x_pos, y_pos, t));
