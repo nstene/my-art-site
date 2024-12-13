@@ -149,7 +149,7 @@ export const MySketch = () => (p: p5) => {
     };
   };
 
-  const animateShootingStar = (probability: number) => {
+  const animateShootingStar = () => {
     // If there's already a shooting star, move it
     if (shootingStar) {
       shootingStar.draw();
