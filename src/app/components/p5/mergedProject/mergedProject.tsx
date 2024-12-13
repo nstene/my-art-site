@@ -9,15 +9,28 @@ export const MySketch = () => (p: p5) => {
   let loadingMessage: p5.Element;
   let t = 0;
   const twinkling = 0.8;
-  const n_stars = 400;
+  let n_stars = 400;
   let stars: Star[];
-  const minRadius = 1;
-  const maxRadius = 2;
+  let minRadius = 1;
+  let maxRadius = 2;
   const shootingStarMaxRadius = maxRadius;
-  const shootingStarProbability = 1/10;
+  const shootingStarProbability = 1 / 10;
   const shootingStarMaxTrailLength = 150;
   const shootingStarMaxSpeed = 10;
   let shootingStar: ShootingStar;
+
+  function isMobileDevice() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return /iphone|ipod|android|blackberry|windows phone|webos|mobile/.test(userAgent);
+  }
+
+  let textSize = 15;
+  if (isMobileDevice()) {
+    textSize = 8;
+    n_stars = 200;
+    minRadius = minRadius/2;
+    maxRadius = maxRadius/2;
+  }
 
   // Stargazing stuff
   //___________________
@@ -63,40 +76,40 @@ export const MySketch = () => (p: p5) => {
     direction: number; // direction in radians
     speed: number; // speed of the shooting star
     trailLength: number; // how far the trail should extend
-  
+
     constructor(radius: number, position: Position, color: p5.Color, direction: number, speed: number, trailLength: number) {
       super(radius, position, color); // Call the parent class constructor
       this.direction = direction;
       this.speed = speed;
       this.trailLength = trailLength;
     }
-  
+
     move() {
       // Move the shooting star based on speed and direction
       this.position.x += this.speed * p.cos(this.direction);
       this.position.y += this.speed * p.sin(this.direction);
     }
-  
+
     draw() {
       p.push();
       p.translate(width / 2, height / 2); // Center the drawing based on the canvas
       p.rotate(p.radians(p.frameCount / 30)); // Optional: Rotate for a dynamic effect
-  
+
       // Draw the trail first (if trailLength > 0)
       for (let i = 0; i < this.trailLength; i++) {
         const alpha = p.map(i, 0, this.trailLength, 255, 0); // Gradually fade the trail
         p.fill(p.red(this.color), p.green(this.color), p.blue(this.color), alpha); // Fading effect for the trail
         p.circle(this.position.x - this.speed * i * p.cos(this.direction), this.position.y - this.speed * i * p.sin(this.direction), this.radius);
       }
-  
+
       // Draw the star itself (shooting star)
       p.fill(this.color);
       p.circle(this.position.x, this.position.y, 2 * this.radius);
-  
+
       p.pop();
     }
   }
-  
+
 
   const generateRandomStars = (n: number, half_width: number, half_height: number): Star[] => {
     const stars: Star[] = [];
@@ -159,10 +172,10 @@ export const MySketch = () => (p: p5) => {
     if (p.random() <= shootingStarProbability) {
       const shootingStarRadius = p.random(shootingStarMaxRadius);
       const shootingStarPosition = new Position(p.random(p.width), p.random(p.height));
-      const shootingStarSpeed = p.random(0.8*shootingStarMaxSpeed, shootingStarMaxSpeed);
+      const shootingStarSpeed = p.random(0.8 * shootingStarMaxSpeed, shootingStarMaxSpeed);
       const shootingStarColor = p.color(150, 150, 255);
       const shootingStarDirection = p.random(p.TWO_PI);
-      const shootingStarTrailLength = p.random(0.1*shootingStarMaxTrailLength, shootingStarMaxTrailLength)
+      const shootingStarTrailLength = p.random(0.1 * shootingStarMaxTrailLength, shootingStarMaxTrailLength)
       shootingStar = new ShootingStar(shootingStarRadius, shootingStarPosition, shootingStarColor, shootingStarDirection, shootingStarSpeed, shootingStarTrailLength);
     }
   };
@@ -223,17 +236,27 @@ export const MySketch = () => (p: p5) => {
     p.frameRate(frameRate); // Typical animation fps. If I want the animation to speed up, increase ball speed
     stars = generateRandomStars(n_stars, p.width / 2, p.height / 2);
 
+    let fullScreenButtonPosition = 150;
+    let playPauseButtonPosition = 100;
+    let fontSize = '18px';
+    if (isMobileDevice()) {
+      fullScreenButtonPosition = 100;
+      playPauseButtonPosition = 50;
+      fontSize = '12px';
+    }
     // Create button for full screen mode
     fullscreenButton = p.createButton('Full Screen');
-    fullscreenButton.position(0, 150);
+    fullscreenButton.position(0, fullScreenButtonPosition);
     fullscreenButton.mousePressed(toggleFullScreen);
+    fullscreenButton.style('font-size', fontSize);
 
     // Sound stuff
     fft = new p5.FFT(0.9, 512); // 512 is the number of bins. Increase for better resolution
     // Create play button
     playPauseButton = p.createButton('Play');
-    playPauseButton.position(0, 100);
+    playPauseButton.position(0, playPauseButtonPosition);
     playPauseButton.mousePressed(togglePlayPause);
+    playPauseButton.style('font-size', fontSize);
   };
 
   p.draw = () => {
@@ -262,6 +285,7 @@ export const MySketch = () => (p: p5) => {
     p.push();
     p.noStroke();
     p.fill('white');
+    p.textSize(textSize);
     const text = "Jaar, Nicolas. 'Muse' Pomegranates. https://www.jaar.site/";
     p.text(text, 0, p.windowHeight - 5);
     p.pop();
