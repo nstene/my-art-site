@@ -14,7 +14,7 @@ export const MySketch = () => (p: p5) => {
   let minRadius = 1;
   let maxRadius = 2;
   const shootingStarMaxRadius = maxRadius;
-  const shootingStarProbability = 1 / 10;
+  const shootingStarProbability = 1 / 100;
   const shootingStarMaxTrailLength = 150;
   const shootingStarMaxSpeed = 10;
   let shootingStar: ShootingStar;
@@ -123,9 +123,9 @@ export const MySketch = () => (p: p5) => {
 
 
       if (colorDecision <= 0.15) {
-        starColor = p.color(brightness, p.random(brightness), p.random(brightness));
+        starColor = p.color(brightness, p.random(brightness/3, 2*brightness/3), p.random(brightness/3, 2*brightness/3));
       } else if (colorDecision > 0.15 && colorDecision <= 0.3) {
-        starColor = p.color(p.random(brightness), p.random(brightness), brightness);
+        starColor = p.color(p.random(brightness/3, 2*brightness/3), p.random(brightness/3, 2*brightness/3), brightness);
       };
       const x = p.random(-max_dim, max_dim);
       const y = p.random(-max_dim, max_dim);
