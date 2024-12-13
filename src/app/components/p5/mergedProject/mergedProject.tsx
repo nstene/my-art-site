@@ -14,8 +14,8 @@ export const MySketch = () => (p: p5) => {
   const minRadius = 1;
   const maxRadius = 2;
   const shootingStarMaxRadius = maxRadius;
-  const shootingStarProbability = 1/100;
-  const shootingStarTrailLength = 1000;
+  const shootingStarProbability = 1/10;
+  const shootingStarMaxTrailLength = 150;
   const shootingStarMaxSpeed = 10;
   let shootingStar: ShootingStar;
 
@@ -159,9 +159,10 @@ export const MySketch = () => (p: p5) => {
     if (p.random() <= shootingStarProbability) {
       const shootingStarRadius = p.random(shootingStarMaxRadius);
       const shootingStarPosition = new Position(p.random(p.width), p.random(p.height));
-      const shootingStarSpeed = p.random(0.5*shootingStarMaxSpeed, shootingStarMaxSpeed);
-      const shootingStarColor = p.color(255, 255, 255);
-      const shootingStarDirection = p.random(360);
+      const shootingStarSpeed = p.random(0.8*shootingStarMaxSpeed, shootingStarMaxSpeed);
+      const shootingStarColor = p.color(150, 150, 255);
+      const shootingStarDirection = p.random(p.TWO_PI);
+      const shootingStarTrailLength = p.random(0.1*shootingStarMaxTrailLength, shootingStarMaxTrailLength)
       shootingStar = new ShootingStar(shootingStarRadius, shootingStarPosition, shootingStarColor, shootingStarDirection, shootingStarSpeed, shootingStarTrailLength);
     }
   };
