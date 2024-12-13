@@ -277,7 +277,7 @@ export const MySketch = () => (p: p5) => {
     drawStars(stars, twinkling);
 
     // Shooting star
-    animateShootingStar(shootingStarProbability);
+    animateShootingStar();
 
     p.translate(-width / 2, -height / 2);
     ({ x_pos, y_pos } = updatePositionNoise(x_pos, y_pos, t));
