@@ -10,7 +10,7 @@ export const MySketch = () => (p: p5) => {
     let fft: p5.FFT;
 
     p.preload = () => {
-      sound = p.loadSound('/music/Nymphs-007-NicolasJaar-Fight.wav');
+      sound = p.loadSound('/music/Nymphs-007-NicolasJaar-Fight.mp3');
     };
 
     p.setup = () => {
