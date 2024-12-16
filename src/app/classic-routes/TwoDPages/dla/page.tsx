@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 
-const P5Wrapper = dynamic(() => import('../../../components/p5/thunder/P5Wrapper'));
+const P5Wrapper = dynamic(() => import('../../../components/p5/dla/P5Wrapper'));
 
 export default function Home() {
   return (

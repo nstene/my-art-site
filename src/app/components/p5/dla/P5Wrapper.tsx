@@ -1,7 +1,7 @@
 // components/P5Wrapper.tsx
 "use client";
 import { useEffect, useRef } from 'react';
-import { MySketch } from './thunder';
+import { MySketch } from './dla';
 import p5 from 'p5';
 
 const P5Wrapper = () => {

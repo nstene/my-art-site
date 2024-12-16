@@ -14,7 +14,7 @@ export const MySketch = () => (p: p5) => {
     let aggregate: p5.Vector[] = [];
     let radius = 2;
     const aggregationProbability = 0.7;
-    const nParticles = 3000;
+    const nParticles = 5000;
     const radialMovementAmplitude = 1;
     const branchParticleOffset = 5;
 
