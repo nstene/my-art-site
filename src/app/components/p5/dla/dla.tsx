@@ -1,5 +1,6 @@
 import p5 from 'p5';
-
+import { Hash } from '../../../utils/HashMap';
+import { Particle } from '../../../utils/Particle';
 // USE DLA ALGORITHM
 
 // 1. Create a seed
@@ -7,27 +8,40 @@ import p5 from 'p5';
 // 3. When a particle comes close to another particle that's part of the aggregation, aggregate that one too
 // 4. Repeat
 
+function removeElementsAtIndices(array: any[], indices: number[]): number[] {
+    indices.sort((a, b) => b - a);
+  
+    let removedElements = [];
+    for (const index of indices) {
+      if (index >= 0 && index < array.length) {
+        removedElements.push(...array.splice(index, 1));
+      }
+    }
+  
+    return removedElements; // Return the removed elements
+  }
+
 
 export const MySketch = () => (p: p5) => {
 
-    let particles: p5.Vector[] = [];
-    let aggregate: p5.Vector[] = [];
+    let freeParticles: Particle[] = [];
+    let aggregatedParticles: Particle[] = [];
     let radius = 2;
     const aggregationProbability = 0.7;
-    const nParticles = 5000;
+    const nParticles = 50000;
     const radialMovementAmplitude = 1;
     const branchParticleOffset = 5;
 
     p.setup = () => {
-        p.createCanvas(800, 800);
+        p.createCanvas(p.windowWidth, p.windowHeight);
         p.angleMode(p.DEGREES);
 
         // Initialize seed 
-        aggregate.push(p.createVector(p.width / 2, p.height / 2));
+        aggregatedParticles.push(new Particle(p.createVector(p.width / 2, p.height / 2)));
 
         // Randomly generate diffusing particles 
         for (let i = 0; i < nParticles; i++) {
-            particles.push(p.createVector(p.random(p.width), p.random(p.height)));
+            freeParticles.push(new Particle(p.createVector(p.random(p.width), p.random(p.height))));
         }
         /*
         for (let i = 0; i < nParticles; i++) {
@@ -55,23 +69,41 @@ export const MySketch = () => (p: p5) => {
         // Draw aggregated particles
         p.noStroke();
 
-        // TODO have the particles have their own radius and color depending on where it gets aggregated (have them darker or smaller on the edges of the structure)
+        ////////////////////
+        // DRAW PARTICLES //
+        ////////////////////
 
-        // TODO instead of going through the whole thing, use the optimization techniques we implemented before with the hash map
-        for (let point of aggregate) {
-            let brightness = p.map(point.y, 0, p.height, 255, 50);
-            p.fill(brightness, brightness, 255, 200);
-            p.circle(point.x, point.y, 2 * radius);
+        // Dessiner la particule diffusante
+        for (let particle of freeParticles) {
+            p.fill(100, 100, 255, 150);
+            p.circle(particle.position.x, particle.position.y, 2 * radius);
         }
 
-        // Move the particles
-        for (let i = particles.length - 1; i >= 0; i--) {
-            let particle = particles[i];
+        console.log(aggregatedParticles.length);
+        for (let point of aggregatedParticles) {
+            let brightness = p.map(point.position.y, 0, p.height, 255, 50);
+            p.fill(brightness, brightness, 255, 200);
+            p.circle(point.position.x, point.position.y, 2 * radius);
+        }
+
+        // TODO have the particles have their own radius and color depending on where it gets aggregated (have them darker or smaller on the edges of the structure)
+
+        // Make hash map of aggregated particles
+        const maxDist = radius * 2;
+        const hash = new Hash(maxDist, aggregatedParticles.length);
+        hash.create(aggregatedParticles);
+
+
+        ////////////////////////
+        // Move the particles //
+        ////////////////////////
+
+        for (let i = freeParticles.length - 1; i >= 0; i--) {
+            let particle = freeParticles[i];
 
             // Déplacement aléatoire avec biais
-            // TODO this makes no sense, it doesn't make the central bias
-            const dx = p.width / 2 - particle.x;
-            const dy = p.height / 2 - particle.y;
+            const dx = p.width / 2 - particle.position.x;
+            const dy = p.height / 2 - particle.position.y;
             const distance = Math.sqrt(dx * dx + dy * dy); // Distance au centre
 
             // Normaliser le vecteur directionnel
@@ -83,50 +115,44 @@ export const MySketch = () => (p: p5) => {
             const movementY = radialMovementAmplitude * dirY;
 
             // Mise à jour des coordonnées de la particule
-            particle.x += movementX;
-            particle.y += movementY;
+            particle.position.x += movementX;
+            particle.position.y += movementY;
 
 
             // Contrainte : Garder les particules dans la fenêtre
-            particle.x = p.constrain(particle.x, 0, p.width);
-            particle.y = p.constrain(particle.y, 0, p.width);
-
-            // Vérifier si elle touche la structure
-            for (let a of aggregate) {
-                if (distSq(particle, a) < (radius * 2) ** 2) {
-                    if (Math.random() < aggregationProbability) {
-                        aggregate.push(particle); // Ajouter la particule à l'agrégat
-                        particles.splice(i, 1); // Retirer cette particule
-                        // Introduce branching
-                        if (Math.random() < 0.1) { // 10% chance to branch
-                            let branchParticle = p.createVector(
-                                particle.x + p.random(-branchParticleOffset, branchParticleOffset),
-                                particle.y + p.random(-branchParticleOffset, branchParticleOffset)
-                            );
-                            aggregate.push(branchParticle);
-                        }
-                        break;
-                    }
-                }
-            }
-
-            // Dessiner la particule diffusante
-            p.fill(100, 100, 255, 150);
-            p.circle(particle.x, particle.y, 2 * radius);
+            particle.position.x = p.constrain(particle.position.x, 0, p.width);
+            particle.position.y = p.constrain(particle.position.y, 0, p.width);
+        
         }
 
+        /////////////////////////
+        // AGGREGATE PARTICLES //
+        /////////////////////////
+
+        // After having moved the free particles, loop over the aggregated particles and check which of the freeParticles should be aggregated
+        let newAggregatedParticles = JSON.parse(JSON.stringify(aggregatedParticles));
+        let convertedFreeParticleIndices = [];
+        for (let i=0; i < freeParticles.length; i++) {
+            
+            const freeParticle = freeParticles[i];
+            
+            // Query all freeParticles within maxDist of aggregatedParticle in focus
+            hash.query(freeParticle.position, maxDist);
+
+            // If freeParticle in vincinity of any aggregatedParticle in HashMap, add it to the aggregatedParticles list 
+            if ( hash.querySize > 0 ) {
+                newAggregatedParticles.push(freeParticle); // Ajouter la particule à l'agrégat
+                convertedFreeParticleIndices.push(i);
+            }
+        }
+
+        removeElementsAtIndices(freeParticles, convertedFreeParticleIndices); // Retirer ces particules des freeParticles
+        aggregatedParticles = newAggregatedParticles;
+
         // Terminer si toutes les particules sont agrégées
-        if (particles.length === 0) {
+        if (freeParticles.length === 0) {
             p.noLoop();
             console.log("Simulation terminée");
         }
-
     }
-
 };
-
-function distSq(a: p5.Vector, b: p5.Vector) {
-    let dx = a.x - b.x;
-    let dy = a.y - b.y;
-    return dx * dx + dy * dy
-}
