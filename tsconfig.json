@@ -31,7 +31,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/types/p5.sound.d.ts"
+    ".next/types/p5.sound.d.ts",
+    "p5-custom.d.ts"
   ],
   "exclude": [
     "node_modules"

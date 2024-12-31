@@ -3,6 +3,7 @@ import { Hash } from '../../../utils/HashMap';
 import { Particle } from '../../../utils/Particle';
 import { Calculus } from '../../../utils/Calculus';
 import { Palette } from '@/app/utils/Colorimetry';
+import { MobileAdaptator } from '@/app/utils/MobileAdaptator';
 
 // USE DLA ALGORITHM
 
@@ -13,16 +14,16 @@ import { Palette } from '@/app/utils/Colorimetry';
 
 function removeElementsAtIndices(array: any[], indices: number[]): number[] {
     indices.sort((a, b) => b - a);
-  
+
     let removedElements = [];
     for (const index of indices) {
-      if (index >= 0 && index < array.length) {
-        removedElements.push(...array.splice(index, 1));
-      }
+        if (index >= 0 && index < array.length) {
+            removedElements.push(...array.splice(index, 1));
+        }
     }
-  
+
     return removedElements; // Return the removed elements
-  }
+}
 
 
 export const MySketch = () => (p: p5) => {
@@ -38,45 +39,88 @@ export const MySketch = () => (p: p5) => {
     const nParticlesMax = 10000;
     const nParticles = 2000;
     const radialMovementAmplitude = 2;
-    const branchParticleOffset = 5;
     const brownianJiggle = 5;
     const yellow = [217, 140, 48];
-    const orange = [217, 114, 55];
     const red = [217, 64, 50];
     const green = [111, 140, 96];
     const colorPalette = new Palette([green, yellow, red]);
     const colorGradientSteps = 30;
     const colorGradient = colorPalette.createGradient(colorGradientSteps);
+    let fullscreenButton: p5.Element;
+    let dropdown: p5.Element;
+    let runButton: p5.Element;
+    let run = false;
+    let initialConditionsSelection: String;
+    const onClickString = 'On click';
+    const initialConditionsString = 'Initial conditions';
 
     function particleRadius(position: number[]): number {
-        const progress = Math.sqrt((position[0] - p.width/2)**2 + (position[1] - p.height/2)**2)/Math.sqrt(p.width**2 + p.height**2);
+        const progress = Math.sqrt((position[0] - p.width / 2) ** 2 + (position[1] - p.height / 2) ** 2) / Math.sqrt(p.width ** 2 + p.height ** 2);
         const easedProgressRadius = Calculus.easeOut(progress, 1.2);
         const r = p.map(easedProgressRadius, 0, 1, initialRadius, terminalRadius);
         return r
     }
 
     function particleColor(position: number[]): number[] {
-        const progress = Math.sqrt((position[0] - p.width/2)**2 + (position[1] - p.height/2)**2)/Math.sqrt(p.width**2 + p.height**2);
+        const progress = Math.sqrt((position[0] - p.width / 2) ** 2 + (position[1] - p.height / 2) ** 2) / Math.sqrt(p.width ** 2 + p.height ** 2);
         const easedProgressRadius = Calculus.easeOut(progress, 3);
         const step = p.floor(p.map(easedProgressRadius, 0, 1, 0, colorGradientSteps));
         return colorGradient[step]
     }
 
+    function toggleFullScreen() {
+        const isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
+        p.fullscreen(!isFullScreen); // Toggle full-screen mode
+    }
+
     p.setup = () => {
         p.createCanvas(p.windowWidth, p.windowHeight);
         p.angleMode(p.DEGREES);
-        p.frameRate(120);
+        p.frameRate(64);
+
+        // Create button for full screen mode
+        let fullScreenButtonPosition = 100;
+        let dropDownPosition = 150;
+        let runButtonPosition = 200;
+        let fontSize = '18px';
+        if (MobileAdaptator.isMobileDevice()) {
+            fullScreenButtonPosition = 50;
+            dropDownPosition = 100;
+            runButtonPosition = 150;
+            fontSize = '12px';
+        }
+        fullscreenButton = p.createButton('Full Screen');
+        fullscreenButton.position(0, fullScreenButtonPosition);
+        fullscreenButton.mousePressed(toggleFullScreen);
+        fullscreenButton.style('font-size', fontSize);
+
+        // Create the dropdown menu
+        dropdown = p.createSelect();
+        dropdown.position(0, dropDownPosition);
+        dropdown.child(p.createElement('option', initialConditionsString));
+        dropdown.child(p.createElement('option', onClickString));
+        dropdown.style('background-color', 'transparent');
+        dropdown.style('color', 'white');
+        dropdown.style('font-size', fontSize);
+        // Add global styles for the unrolled options
+        const styleTag = p.createElement('style', `
+            select option {
+            background-color: rgba(0, 0, 0); /* Semi-transparent black for options */
+            color: white; /* White text for options */
+            }
+        `);
+        styleTag.parent(document.head); // Attach to the document's head
+
+        // Create run button
+        runButton = p.createButton('Run');
+        runButton.position(0, runButtonPosition);
+        runButton.mousePressed(toggleRun);
+        runButton.style('font-size', fontSize)
 
         // Initialize seed 
-        aggregatedParticles.push(new Particle(initialRadius, p.createVector(p.width / 2, p.height / 2), p.createVector(0, 0), p.createVector(0, 0), aggregatedParticleColor));
-
-        // Randomly generate diffusing particles on a circle
-        const generatingCircleRadius = p.min(p.width, p.height);
-        for (let i = 0; i < nParticles; i++) {
-            const angle = p.random(360);
-            const x = generatingCircleRadius * p.cos(angle) + p.width/2;
-            const y = generatingCircleRadius * p.sin(angle) + p.height/2;
-            freeParticles.push(new Particle(initialRadius, p.createVector(x, y),  p.createVector(0, 0), p.createVector(0, 0), freeParticleColor));
+        initialSeeding();
+        if (String(dropdown.value()) === initialConditionsString) {
+            initialConditions();
         }
     }
 
@@ -84,8 +128,10 @@ export const MySketch = () => (p: p5) => {
         //p.background(209, 157, 79, 50);
         p.background(0, 50);
 
-        // Draw aggregated particles
-        //p.noStroke();
+        // Move agents if playing
+        if (!run) {
+            return;
+        }
 
         ////////////////////
         // DRAW PARTICLES //
@@ -119,8 +165,8 @@ export const MySketch = () => (p: p5) => {
             let particle = freeParticles[i];
 
             // Déplacement aléatoire avec biais
-            const dx = p.width / 2 - particle.position.x;
-            const dy = p.height / 2 - particle.position.y;
+            const dx = p.windowWidth / 2 - particle.position.x;
+            const dy = p.windowHeight / 2 - particle.position.y;
             const distance = Math.sqrt(dx * dx + dy * dy); // Distance au centre
 
             // Normaliser le vecteur directionnel
@@ -137,9 +183,9 @@ export const MySketch = () => (p: p5) => {
 
 
             // Contrainte : Garder les particules dans la fenêtre
-            particle.position.x = p.constrain(particle.position.x, 0, p.width);
-            particle.position.y = p.constrain(particle.position.y, 0, p.width);
-        
+            particle.position.x = p.constrain(particle.position.x, 0, p.windowWidth);
+            particle.position.y = p.constrain(particle.position.y, 0, p.windowHeight);
+
         }
 
         /////////////////////////
@@ -149,17 +195,17 @@ export const MySketch = () => (p: p5) => {
         // After having moved the free particles, loop over the aggregated particles and check which of the freeParticles should be aggregated
         let newAggregatedParticles = JSON.parse(JSON.stringify(aggregatedParticles));
         let convertedFreeParticleIndices = [];
-        for (let i=0; i < freeParticles.length; i++) {
-            
+        for (let i = 0; i < freeParticles.length; i++) {
+
             const freeParticle = freeParticles[i];
             const newRadius = particleRadius([freeParticle.position.x, freeParticle.position.y]);
             const newColor = particleColor([freeParticle.position.x, freeParticle.position.y]);
-            
+
             // Query all freeParticles within maxDist of aggregatedParticle in focus
-            hash.query(freeParticle.position, 2*newRadius);
+            hash.query(freeParticle.position, 2 * newRadius);
 
             // If freeParticle in vincinity of any aggregatedParticle in HashMap, add it to the aggregatedParticles list 
-            if ( hash.querySize > 0 && p.random() < aggregationProbability) {
+            if (hash.querySize > 0 && p.random() < aggregationProbability) {
                 freeParticle.setColor(newColor);
                 freeParticle.setRadius(newRadius);
                 newAggregatedParticles.push(freeParticle); // Ajouter la particule à l'agrégat
@@ -174,18 +220,25 @@ export const MySketch = () => (p: p5) => {
         // Create new free particles at the border //
         /////////////////////////////////////////////
 
-        // Randomly generate diffusing particles 
-        const lastAggregatedParticle = aggregatedParticles[aggregatedParticles.length-1];
-        const generationRadiusMin = Math.sqrt((lastAggregatedParticle.position.x - p.width/2)**2 + (lastAggregatedParticle.position.y - p.height/2)**2);
-        const generationRadius = p.random(generationRadiusMin*2, p.min(generationRadiusMin*5, p.min(p.width, p.height)));
-        for (let i = 0; i < convertedFreeParticleIndices.length; i++) {
+        if (initialConditionsSelection === onClickString && p.mouseIsPressed) {
+            freeParticles.push(new Particle(initialRadius, p.createVector(p.mouseX, p.mouseY), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
+        }
 
-            const randomAngle = p.random(360);
+        if (initialConditionsSelection === initialConditionsString) {
 
-            let x = generationRadius * p.cos(randomAngle) + p.width/2;
-            let y = generationRadius * p.sin(randomAngle) + p.height/2;
+            // Randomly generate diffusing particles 
+            const lastAggregatedParticle = aggregatedParticles[aggregatedParticles.length - 1];
+            const generationRadiusMin = Math.sqrt((lastAggregatedParticle.position.x - p.width / 2) ** 2 + (lastAggregatedParticle.position.y - p.height / 2) ** 2);
+            const generationRadius = p.random(generationRadiusMin * 2, p.min(generationRadiusMin * 5, p.min(p.width, p.height)));
+            for (let i = 0; i < convertedFreeParticleIndices.length; i++) {
 
-            freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
+                const randomAngle = p.random(360);
+
+                let x = generationRadius * p.cos(randomAngle) + p.width / 2;
+                let y = generationRadius * p.sin(randomAngle) + p.height / 2;
+
+                freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
+            }
         }
 
         // Terminer si toutes les particules sont agrégées
@@ -193,5 +246,58 @@ export const MySketch = () => (p: p5) => {
             p.noLoop();
             console.log("Simulation terminée");
         }
+    };
+
+    p.windowResized = () => {
+        p.resizeCanvas(p.windowWidth, p.windowHeight);
+    };
+
+    function initialSeeding() {
+        aggregatedParticles.push(new Particle(initialRadius, p.createVector(p.windowWidth / 2, p.windowHeight / 2), p.createVector(0, 0), p.createVector(0, 0), aggregatedParticleColor));
+    }
+
+    function initialConditions() {
+        initialConditionsSelection = String(dropdown.value());
+        if (initialConditionsSelection === initialConditionsString) {
+            // Randomly generate diffusing particles on a circle
+            const generatingCircleRadius = p.min(p.width, p.height);
+            for (let i = 0; i < nParticles; i++) {
+                const angle = p.random(360);
+                const x = 3 * generatingCircleRadius / 4 * p.cos(angle) + p.windowWidth / 2;
+                const y = 3 * generatingCircleRadius / 4 * p.sin(angle) + p.windowHeight / 2;
+                freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), freeParticleColor));
+            }
+        }
+    }
+
+    function handleSelection() {
+        // This function is triggered when the selection changes
+        console.log('You selected:', dropdown.value());
+        initialConditionsSelection = String(dropdown.value());
+    }
+
+    function toggleRun() {
+        if (run) {
+            // Stop simulation and reset
+            runButton.html('Run');
+            run = false;
+            resetSketch();
+        } else {
+            // Start simulation
+            runButton.html('Reset');
+            initialConditionsSelection = String(dropdown.value());
+            resetSketch();
+            initialSeeding();
+            if (initialConditionsSelection === initialConditionsString) {
+                initialConditions();
+            }
+            run = true;
+        }
+    }
+
+    function resetSketch() {
+        aggregatedParticles = [];
+        freeParticles = [];
+        p.background(0);
     }
 };

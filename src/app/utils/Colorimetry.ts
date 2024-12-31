@@ -42,13 +42,9 @@ export class Palette {
 }
 
 function interpolateColor(color1: Color, color2: Color, t: number) {
-    try {
-        return [
-            Math.round(Calculus.lerp(color1.r, color2.r, t)),
-            Math.round(Calculus.lerp(color1.g, color2.g, t)),
-            Math.round(Calculus.lerp(color1.b, color2.b, t))
-        ];
-    } catch {
-        console.log(color1, color2)
-    }
+    return [
+        Math.round(Calculus.lerp(color1.r, color2.r, t)),
+        Math.round(Calculus.lerp(color1.g, color2.g, t)),
+        Math.round(Calculus.lerp(color1.b, color2.b, t))
+    ];
 }
