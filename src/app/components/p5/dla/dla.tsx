@@ -53,8 +53,9 @@ export const MySketch = () => (p: p5) => {
     let initialConditionsSelection: String;
     const onClickString = 'On click';
     const initialConditionsString = 'Initial conditions';
-    const maxDensity = 3;
-    const replacementProbability = 0.5;
+    const terminalMaxDensity = 3;
+    const initialMaxDensity = 1.1;
+    const replacementProbability = 0.9;
 
     function particleRadius(position: number[]): number {
         const progress = Math.sqrt((position[0] - p.width / 2) ** 2 + (position[1] - p.height / 2) ** 2) / Math.sqrt(p.width ** 2 + p.height ** 2);
@@ -208,9 +209,13 @@ export const MySketch = () => (p: p5) => {
 
             // If freeParticle in vincinity of any aggregatedParticle in HashMap, add it to the aggregatedParticles list 
             if (hash.querySize > 0 && p.random() < aggregationProbability) {
-                // If density is too high, don't aggregate it (like 10 in the vicinity smth like that)
-                if (hash.querySize > maxDensity || p.random() > replacementProbability) {
-                    suppressedFreeParticleIndices.push(i);
+                // If density is too high, don't aggregate it)
+                const progress = newRadius / terminalRadius;
+                const maxDensity = p.map(progress, 0, 1, initialMaxDensity, terminalMaxDensity);
+                if (hash.querySize >= maxDensity) {
+                    if (p.random() > replacementProbability) {
+                        suppressedFreeParticleIndices.push(i);
+                    }
                     continue;
                 }
                 freeParticle.setColor(newColor);
