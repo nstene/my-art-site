@@ -53,6 +53,8 @@ export const MySketch = () => (p: p5) => {
     let initialConditionsSelection: String;
     const onClickString = 'On click';
     const initialConditionsString = 'Initial conditions';
+    const maxDensity = 3;
+    const replacementProbability = 0.5;
 
     function particleRadius(position: number[]): number {
         const progress = Math.sqrt((position[0] - p.width / 2) ** 2 + (position[1] - p.height / 2) ** 2) / Math.sqrt(p.width ** 2 + p.height ** 2);
@@ -117,7 +119,7 @@ export const MySketch = () => (p: p5) => {
         runButton.mousePressed(toggleRun);
         runButton.style('font-size', fontSize)
 
-        // Initialize seed 
+        // Initialize seed
         initialSeeding();
         if (String(dropdown.value()) === initialConditionsString) {
             initialConditions();
@@ -125,7 +127,6 @@ export const MySketch = () => (p: p5) => {
     }
 
     p.draw = () => {
-        //p.background(209, 157, 79, 50);
         p.background(0, 50);
 
         // Move agents if playing
@@ -195,6 +196,7 @@ export const MySketch = () => (p: p5) => {
         // After having moved the free particles, loop over the aggregated particles and check which of the freeParticles should be aggregated
         let newAggregatedParticles = JSON.parse(JSON.stringify(aggregatedParticles));
         let convertedFreeParticleIndices = [];
+        let suppressedFreeParticleIndices = [];
         for (let i = 0; i < freeParticles.length; i++) {
 
             const freeParticle = freeParticles[i];
@@ -206,6 +208,11 @@ export const MySketch = () => (p: p5) => {
 
             // If freeParticle in vincinity of any aggregatedParticle in HashMap, add it to the aggregatedParticles list 
             if (hash.querySize > 0 && p.random() < aggregationProbability) {
+                // If density is too high, don't aggregate it (like 10 in the vicinity smth like that)
+                if (hash.querySize > maxDensity || p.random() > replacementProbability) {
+                    suppressedFreeParticleIndices.push(i);
+                    continue;
+                }
                 freeParticle.setColor(newColor);
                 freeParticle.setRadius(newRadius);
                 newAggregatedParticles.push(freeParticle); // Ajouter la particule à l'agrégat
@@ -213,7 +220,7 @@ export const MySketch = () => (p: p5) => {
             }
         }
 
-        removeElementsAtIndices(freeParticles, convertedFreeParticleIndices); // Retirer ces particules des freeParticles
+        removeElementsAtIndices(freeParticles, convertedFreeParticleIndices.concat(suppressedFreeParticleIndices)); // Retirer ces particules des freeParticles
         aggregatedParticles = newAggregatedParticles;
 
         /////////////////////////////////////////////
