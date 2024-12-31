@@ -6,10 +6,10 @@ describe('Hash', () => {
   test('query method should return the correct particles in the region', () => {
     // Create particles with known positions
     const particles = [
-      new Particle(new Position(5, 5)),
-      new Particle(new Position(15, 15)),
-      new Particle(new Position(25, 25)),
-      new Particle(new Position(35, 35)),
+      new Particle(1, new Position(5, 5)),
+      new Particle(1, new Position(15, 15)),
+      new Particle(1, new Position(25, 25)),
+      new Particle(1, new Position(35, 35)),
     ];
 
     // Initialize the hash grid with spacing = 10 and maxNumObjects = 10
