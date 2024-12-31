@@ -2,6 +2,7 @@ import p5 from 'p5';
 import { Hash } from '../../../utils/HashMap';
 import { Particle } from '../../../utils/Particle';
 import { Calculus } from '../../../utils/Calculus';
+import { Palette } from '@/app/utils/Colorimetry';
 
 // USE DLA ALGORITHM
 
@@ -28,7 +29,7 @@ export const MySketch = () => (p: p5) => {
 
     let freeParticles: Particle[] = [];
     let aggregatedParticles: Particle[] = [];
-    const aggregatedParticleColor = [255, 255, 255];
+    const aggregatedParticleColor = [203, 108, 44]//[167, 36, 34];
     const freeParticleColor = [100, 100, 255, 150];
     const newFreeParticleColor = [255, 100, 100, 150];
     const initialRadius = 2;
@@ -39,13 +40,26 @@ export const MySketch = () => (p: p5) => {
     const radialMovementAmplitude = 2;
     const branchParticleOffset = 5;
     const brownianJiggle = 5;
-    const generatingCircleRadius = p.min(p.windowWidth, p.windowHeight);
+    const yellow = [217, 140, 48];
+    const orange = [217, 114, 55];
+    const red = [217, 64, 50];
+    const green = [111, 140, 96];
+    const colorPalette = new Palette([green, yellow, red]);
+    const colorGradientSteps = 30;
+    const colorGradient = colorPalette.createGradient(colorGradientSteps);
 
     function particleRadius(position: number[]): number {
         const progress = Math.sqrt((position[0] - p.width/2)**2 + (position[1] - p.height/2)**2)/Math.sqrt(p.width**2 + p.height**2);
         const easedProgressRadius = Calculus.easeOut(progress, 1.2);
         const r = p.map(easedProgressRadius, 0, 1, initialRadius, terminalRadius);
         return r
+    }
+
+    function particleColor(position: number[]): number[] {
+        const progress = Math.sqrt((position[0] - p.width/2)**2 + (position[1] - p.height/2)**2)/Math.sqrt(p.width**2 + p.height**2);
+        const easedProgressRadius = Calculus.easeOut(progress, 3);
+        const step = p.floor(p.map(easedProgressRadius, 0, 1, 0, colorGradientSteps));
+        return colorGradient[step]
     }
 
     p.setup = () => {
@@ -57,6 +71,7 @@ export const MySketch = () => (p: p5) => {
         aggregatedParticles.push(new Particle(initialRadius, p.createVector(p.width / 2, p.height / 2), p.createVector(0, 0), p.createVector(0, 0), aggregatedParticleColor));
 
         // Randomly generate diffusing particles on a circle
+        const generatingCircleRadius = p.min(p.width, p.height);
         for (let i = 0; i < nParticles; i++) {
             const angle = p.random(360);
             const x = generatingCircleRadius * p.cos(angle) + p.width/2;
@@ -66,6 +81,7 @@ export const MySketch = () => (p: p5) => {
     }
 
     p.draw = () => {
+        //p.background(209, 157, 79, 50);
         p.background(0, 50);
 
         // Draw aggregated particles
@@ -137,14 +153,15 @@ export const MySketch = () => (p: p5) => {
             
             const freeParticle = freeParticles[i];
             const newRadius = particleRadius([freeParticle.position.x, freeParticle.position.y]);
+            const newColor = particleColor([freeParticle.position.x, freeParticle.position.y]);
             
             // Query all freeParticles within maxDist of aggregatedParticle in focus
             hash.query(freeParticle.position, 2*newRadius);
 
             // If freeParticle in vincinity of any aggregatedParticle in HashMap, add it to the aggregatedParticles list 
             if ( hash.querySize > 0 && p.random() < aggregationProbability) {
-                freeParticle.setColor(aggregatedParticleColor)
-                freeParticle.setRadius(newRadius)
+                freeParticle.setColor(newColor);
+                freeParticle.setRadius(newRadius);
                 newAggregatedParticles.push(freeParticle); // Ajouter la particule à l'agrégat
                 convertedFreeParticleIndices.push(i);
             }
@@ -160,7 +177,7 @@ export const MySketch = () => (p: p5) => {
         // Randomly generate diffusing particles 
         const lastAggregatedParticle = aggregatedParticles[aggregatedParticles.length-1];
         const generationRadiusMin = Math.sqrt((lastAggregatedParticle.position.x - p.width/2)**2 + (lastAggregatedParticle.position.y - p.height/2)**2);
-        const generationRadius = p.min(generationRadiusMin*5, p.min(p.width, p.height));
+        const generationRadius = p.random(generationRadiusMin*2, p.min(generationRadiusMin*5, p.min(p.width, p.height)));
         for (let i = 0; i < convertedFreeParticleIndices.length; i++) {
 
             const randomAngle = p.random(360);
@@ -168,21 +185,6 @@ export const MySketch = () => (p: p5) => {
             let x = generationRadius * p.cos(randomAngle) + p.width/2;
             let y = generationRadius * p.sin(randomAngle) + p.height/2;
 
-            /*
-            if ( rand <= 0.25 ) {
-                x = 1;
-                y = p.random(p.height - 1);
-            } else if ( rand > 0.25 && rand <= 0.5) {
-                x = p.random(p.width - 1);
-                y = 1;
-            } else if ( rand > 0.5 && rand <= 0.75) {
-                x = p.width - 1;
-                y = p.random(p.height - 1);
-            } else {
-                x = p.random(p.width - 1);
-                y = p.height - 1;
-            }
-            */
             freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
         }
 

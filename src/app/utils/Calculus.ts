@@ -4,4 +4,8 @@ export class Calculus {
     static easeOut(t: number, exponent: number): number {
         return 1 - Math.pow(1 - t, exponent); // Cubic ease-out for smooth slowing down
     }
+
+    static lerp(start: number, end: number, t: number): number {
+        return start + (end - start) * t;
+    }
 }
