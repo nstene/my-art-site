@@ -12,7 +12,7 @@ import { MobileAdaptator } from '@/app/utils/MobileAdaptator';
 // 3. When a particle comes close to another particle that's part of the aggregation, aggregate that one too
 // 4. Repeat
 
-function removeElementsAtIndices(array: Array<any>, indices: number[]): number[] {
+function removeElementsAtIndices(array: Particle[], indices: number[]) {
     indices.sort((a, b) => b - a);
 
     const removedElements = [];
@@ -22,7 +22,7 @@ function removeElementsAtIndices(array: Array<any>, indices: number[]): number[]
         }
     }
 
-    return removedElements; // Return the removed elements
+    return
 }
 
 
@@ -162,7 +162,7 @@ export const MySketch = () => (p: p5) => {
         ////////////////////////
 
         for (let i = freeParticles.length - 1; i >= 0; i--) {
-            let particle = freeParticles[i];
+            const particle = freeParticles[i];
 
             // Déplacement aléatoire avec biais
             const dx = p.windowWidth / 2 - particle.position.x;

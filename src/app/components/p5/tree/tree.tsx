@@ -23,9 +23,9 @@ export const MySketch = () => (p: p5) => {
         p.translate(p.width / 2, p.height);
         p.stroke(255);
         p.strokeWeight(thickness);
-        for (let char of sentence) {
+        for (const char of sentence) {
             if (char == "F") {
-                let randomThickness = Math.max(1, thickness * Math.random() * 0.7); // Réduit l'épaisseur
+                const randomThickness = Math.max(1, thickness * Math.random() * 0.7); // Réduit l'épaisseur
                 p.strokeWeight(randomThickness);
                 p.line(0, 0, 0, -length);
                 p.translate(0, -length);
