@@ -49,7 +49,9 @@ export const MySketch = () => (p: p5) => {
     let fullscreenButton: p5.Element;
     let dropdown: p5.Element;
     let runButton: p5.Element;
+    let hideFreeParticlesButton: p5.Element;
     let run = false;
+    let hideFreeParticles = false;
     let initialConditionsSelection: string;
     const onClickString = 'On click';
     const initialConditionsString = 'Initial conditions';
@@ -85,11 +87,13 @@ export const MySketch = () => (p: p5) => {
         let fullScreenButtonPosition = 100;
         let dropDownPosition = 150;
         let runButtonPosition = 200;
+        let hideFreeParticlesButtonPosition = 250;
         let fontSize = '18px';
         if (MobileAdaptator.isMobileDevice()) {
             fullScreenButtonPosition = 50;
             dropDownPosition = 100;
             runButtonPosition = 150;
+            hideFreeParticlesButtonPosition = 200;
             fontSize = '12px';
         }
         fullscreenButton = p.createButton('Full Screen');
@@ -118,7 +122,13 @@ export const MySketch = () => (p: p5) => {
         runButton = p.createButton('Run');
         runButton.position(0, runButtonPosition);
         runButton.mousePressed(toggleRun);
-        runButton.style('font-size', fontSize)
+        runButton.style('font-size', fontSize);
+
+        // Create button to hide free particles
+        hideFreeParticlesButton = p.createButton('Hide free particles');
+        hideFreeParticlesButton.position(0, hideFreeParticlesButtonPosition);
+        hideFreeParticlesButton.mousePressed(toggleHideFreeParticles);
+        hideFreeParticlesButton.style('font-size', fontSize)
 
         // Initialize seed
         initialSeeding();
@@ -140,9 +150,11 @@ export const MySketch = () => (p: p5) => {
         ////////////////////
 
         // Dessiner la particule diffusante
-        for (const freeParticle of freeParticles) {
-            p.fill(freeParticle.color);
-            p.circle(freeParticle.position.x, freeParticle.position.y, 2 * freeParticle.radius);
+        if (!hideFreeParticles) {
+            for (const freeParticle of freeParticles) {
+                p.fill(freeParticle.color);
+                p.circle(freeParticle.position.x, freeParticle.position.y, 2 * freeParticle.radius);
+            }
         }
 
         console.log(aggregatedParticles.length);
@@ -304,4 +316,14 @@ export const MySketch = () => (p: p5) => {
         freeParticles = [];
         p.background(0);
     }
+
+    function toggleHideFreeParticles() {
+        if (hideFreeParticles) {
+          hideFreeParticlesButton.html('Hide free particles'); 
+          hideFreeParticles = false;
+        } else {
+          hideFreeParticlesButton.html('Show free particles'); 
+          hideFreeParticles = true;
+        }
+      }
 };
