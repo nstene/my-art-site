@@ -17,7 +17,11 @@ export const MySketch = () => (p: p5) => {
   const shootingStarProbability = 1 / 100;
   const shootingStarMaxTrailLength = 150;
   const shootingStarMaxSpeed = 10;
+  const shootingStarPathCurvature = 1/10;
   let shootingStar: ShootingStar;
+  const rMax = Math.max(width / 3, height / 3);
+  const rMin = 1;
+  let ballSize = rMax;  // Initial ball size
 
   function isMobileDevice() {
     const userAgent = navigator.userAgent.toLowerCase();
@@ -28,15 +32,17 @@ export const MySketch = () => (p: p5) => {
   if (isMobileDevice()) {
     textSize = 8;
     n_stars = 200;
-    minRadius = minRadius/2;
-    maxRadius = maxRadius/2;
+    minRadius = minRadius / 2;
+    maxRadius = maxRadius / 2;
   }
 
   // Stargazing stuff
   //___________________
 
-  let y_pos = width * Math.random();
-  let x_pos = height * Math.random();
+  let y_pos = height * Math.random();
+  let x_pos = width * Math.random();
+
+  console.log(`x_pos: ${x_pos}, y_pos: ${y_pos}`)
 
   class Position {
     x: number;
@@ -93,7 +99,7 @@ export const MySketch = () => (p: p5) => {
     draw() {
       p.push();
       p.translate(width / 2, height / 2); // Center the drawing based on the canvas
-      p.rotate(p.radians(p.frameCount / 30)); // Optional: Rotate for a dynamic effect
+      p.rotate(p.radians(p.frameCount * shootingStarPathCurvature)); // Optional: Rotate for a dynamic effect
 
       // Draw the trail first (if trailLength > 0)
       for (let i = 0; i < this.trailLength; i++) {
@@ -123,9 +129,9 @@ export const MySketch = () => (p: p5) => {
 
 
       if (colorDecision <= 0.15) {
-        starColor = p.color(brightness, p.random(brightness/3, 2*brightness/3), p.random(brightness/3, 2*brightness/3));
+        starColor = p.color(brightness, p.random(brightness / 3, 2 * brightness / 3), p.random(brightness / 3, 2 * brightness / 3));
       } else if (colorDecision > 0.15 && colorDecision <= 0.3) {
-        starColor = p.color(p.random(brightness/3, 2*brightness/3), p.random(brightness/3, 2*brightness/3), brightness);
+        starColor = p.color(p.random(brightness / 3, 2 * brightness / 3), p.random(brightness / 3, 2 * brightness / 3), brightness);
       };
       const x = p.random(-max_dim, max_dim);
       const y = p.random(-max_dim, max_dim);
@@ -137,20 +143,41 @@ export const MySketch = () => (p: p5) => {
     return stars;
   };
 
-  const updatePositionNoise = (x_pos: number, y_pos: number, t: number) => {
-    x_pos = width * p.noise(t + 15);
-    y_pos = height * p.noise(t + 5);
+  const updateBlackCirclePosition = (x_pos: number, y_pos: number, t: number, ballSize: number) => {
+    const newXpos = width * p.noise(t + 15);
+    const newYpos = height * p.noise(t + 5);
+
+    // Constrain the positions so the circle never leaves the screen
+    x_pos = p.constrain(newXpos, -ballSize, width + ballSize);
+    y_pos = p.constrain(newYpos, -ballSize, height + ballSize);
     return { x_pos, y_pos };
   };
 
-  const makeBlackCircle = (x_pos: number, y_pos: number, radius: number) => {
-    p.push();
-    p.fill(0);
-    p.stroke(255);
-    p.strokeWeight(2);
-    const diameter = 2 * radius;
-    p.circle(x_pos, y_pos, diameter);
-    p.pop();
+  const drawBlackCircle = (x_pos: number, y_pos: number, radius: number) => {
+    if (!isFinished) { // If song is not finished keep the black circle moving
+      p.push();
+      if (isPlaying) { // Rotate only if song is playing
+        p.translate(width / 2, height / 2);
+        p.rotate(p.radians(p.frameCount / 30));
+        p.translate(- width / 2, - height / 2);
+      }
+      p.fill(0);
+      p.stroke(255);
+      p.strokeWeight(2);
+      const diameter = 2 * radius;
+      p.circle(x_pos, y_pos, diameter);
+      p.pop();
+    } else if (isFinished && p.random() > twinkling) { // If song is finished make it a twinkling star
+      p.push();
+      p.translate(width / 2, height / 2);
+      p.rotate(p.radians(p.frameCount / 30));
+      p.fill(255);
+      p.stroke(255);
+      p.strokeWeight(2);
+      const diameter = 2 * radius;
+      p.circle(x_pos, y_pos, diameter);
+      p.pop();
+    } else return; // Don't draw it for twinkling effect
   };
 
   const drawStars = (stars: Star[], twinkling: number) => {
@@ -170,7 +197,7 @@ export const MySketch = () => (p: p5) => {
     }
     // Else, potentially create one with probability
     if (p.random() <= shootingStarProbability) {
-      const shootingStarRadius = p.random(shootingStarMaxRadius);
+      const shootingStarRadius = p.random(minRadius, shootingStarMaxRadius);
       const shootingStarPosition = new Position(p.random(p.width), p.random(p.height));
       const shootingStarSpeed = p.random(0.8 * shootingStarMaxSpeed, shootingStarMaxSpeed);
       const shootingStarColor = p.color(150, 150, 255);
@@ -186,13 +213,10 @@ export const MySketch = () => (p: p5) => {
   let sound: p5.SoundFile;
   let fft: p5.FFT;
 
-  const rMax = Math.max(width / 3, height / 3);
-  const rMin = 1;
   let elapsedSongTime = 0;
   const frameRate = 60;
   let isFinished = false;
 
-  let ballSize = rMax;  // Initial ball size
   let speedFactor = 1;
 
   p.preload = () => {
@@ -303,18 +327,9 @@ export const MySketch = () => (p: p5) => {
     // Shooting star
     animateShootingStar();
 
-    p.translate(-width / 2, -height / 2);
-    ({ x_pos, y_pos } = updatePositionNoise(x_pos, y_pos, t));
+    ({ x_pos, y_pos } = updateBlackCirclePosition(x_pos, y_pos, t, ballSize));
 
-    if (isFinished && p.random() > twinkling) {
-      //p.fill(100, 100);
-      makeBlackCircle(x_pos, y_pos, ballSize);
-    } else if (!isFinished) {
-      makeBlackCircle(x_pos, y_pos, ballSize);
-    };
-
-    console.log(stars[0].color.toString());
-
+    drawBlackCircle(x_pos, y_pos, ballSize);
   };
 
   p.windowResized = () => {
