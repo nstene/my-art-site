@@ -103,7 +103,7 @@ export const MySketch = () => (p: p5) => {
   p.preload = () => {
     loadingMessage = p.createP('Loading... Please wait.');
     loadingMessage.position(p.windowWidth/2 - 100, p.windowHeight/2);
-    sound = p.loadSound('/music/Nymphs-004-NicolasJaarfeatLorraine-No_One_Is_Looking_at_U.wav', onLoadComplete);
+    sound = p.loadSound('/music/Nymphs-004-NicolasJaarfeatLorraine-No_One_Is_Looking_at_U.mp3', onLoadComplete);
   };
 
   function onLoadComplete() {
