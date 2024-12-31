@@ -12,10 +12,10 @@ import { MobileAdaptator } from '@/app/utils/MobileAdaptator';
 // 3. When a particle comes close to another particle that's part of the aggregation, aggregate that one too
 // 4. Repeat
 
-function removeElementsAtIndices(array: any[], indices: number[]): number[] {
+function removeElementsAtIndices(array: Array<any>, indices: number[]): number[] {
     indices.sort((a, b) => b - a);
 
-    let removedElements = [];
+    const removedElements = [];
     for (const index of indices) {
         if (index >= 0 && index < array.length) {
             removedElements.push(...array.splice(index, 1));
@@ -50,7 +50,7 @@ export const MySketch = () => (p: p5) => {
     let dropdown: p5.Element;
     let runButton: p5.Element;
     let run = false;
-    let initialConditionsSelection: String;
+    let initialConditionsSelection: string;
     const onClickString = 'On click';
     const initialConditionsString = 'Initial conditions';
     const terminalMaxDensity = 3;
@@ -140,18 +140,16 @@ export const MySketch = () => (p: p5) => {
         ////////////////////
 
         // Dessiner la particule diffusante
-        for (let particle of freeParticles) {
-            p.fill(particle.color);
-            p.circle(particle.position.x, particle.position.y, 2 * particle.radius);
+        for (const freeParticle of freeParticles) {
+            p.fill(freeParticle.color);
+            p.circle(freeParticle.position.x, freeParticle.position.y, 2 * freeParticle.radius);
         }
 
         console.log(aggregatedParticles.length);
-        for (let point of aggregatedParticles) {
-            p.fill(point.color);
-            p.circle(point.position.x, point.position.y, 2 * point.radius);
+        for (const aggregatedParticle of aggregatedParticles) {
+            p.fill(aggregatedParticle.color);
+            p.circle(aggregatedParticle.position.x, aggregatedParticle.position.y, 2 * aggregatedParticle.radius);
         }
-
-        // TODO have the particles have their own radius and color depending on where it gets aggregated (have them darker or smaller on the edges of the structure)
 
         // Make hash map of aggregated particles
         const maxDist = initialRadius * 2;
@@ -195,9 +193,9 @@ export const MySketch = () => (p: p5) => {
         /////////////////////////
 
         // After having moved the free particles, loop over the aggregated particles and check which of the freeParticles should be aggregated
-        let newAggregatedParticles = JSON.parse(JSON.stringify(aggregatedParticles));
-        let convertedFreeParticleIndices = [];
-        let suppressedFreeParticleIndices = [];
+        const newAggregatedParticles = JSON.parse(JSON.stringify(aggregatedParticles));
+        const convertedFreeParticleIndices = [];
+        const suppressedFreeParticleIndices = [];
         for (let i = 0; i < freeParticles.length; i++) {
 
             const freeParticle = freeParticles[i];
@@ -246,8 +244,8 @@ export const MySketch = () => (p: p5) => {
 
                 const randomAngle = p.random(360);
 
-                let x = generationRadius * p.cos(randomAngle) + p.width / 2;
-                let y = generationRadius * p.sin(randomAngle) + p.height / 2;
+                const x = generationRadius * p.cos(randomAngle) + p.width / 2;
+                const y = generationRadius * p.sin(randomAngle) + p.height / 2;
 
                 freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
             }
@@ -280,12 +278,6 @@ export const MySketch = () => (p: p5) => {
                 freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), freeParticleColor));
             }
         }
-    }
-
-    function handleSelection() {
-        // This function is triggered when the selection changes
-        console.log('You selected:', dropdown.value());
-        initialConditionsSelection = String(dropdown.value());
     }
 
     function toggleRun() {

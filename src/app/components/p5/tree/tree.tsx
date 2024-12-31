@@ -2,9 +2,9 @@ import p5 from 'p5';
 
 export const MySketch = () => (p: p5) => {
 
-    let axiom = "F";
+    const axiom = "F";
     let sentence = axiom;
-    let rules = [
+    const rules = [
         { match: "F", replace: "FF+[+F-F-F]-[-F+F+F]" },
         { match: "F", replace: "F[+F]F[-F][F]" },
         { match: "F", replace: "FF[-F+F]+[+F-F]" }
@@ -51,9 +51,9 @@ export const MySketch = () => (p: p5) => {
     p.mousePressed = () => {
         length *= reductionRatio; // Réduit la taille à chaque itération
         let nextSentence = "";
-        for (let char of sentence) {
+        for (const char of sentence) {
             let found = false;
-            for (let rule of rules) {
+            for (const rule of rules) {
                 if (char == rule.match) {
                     found = true;
                     nextSentence += p.random([rule.replace]); // Choisit une règle aléatoirement

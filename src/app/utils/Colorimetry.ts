@@ -16,9 +16,9 @@ export class Color {
 export class Palette {
     colors: Color[];
 
-    constructor(colors: any[]) {
+    constructor(colors: Array<number[]>) {
         this.colors = [];
-        for (let color of colors) {
+        for (const color of colors) {
             this.colors.push(new Color(color[0], color[1], color[2]))
         }
     }

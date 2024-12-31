@@ -46,7 +46,7 @@ export class Hash {
 
     // Create the grid hasing
     create(particles: Particle[]) {
-        let numObjects = Math.min(particles.length, this.cellEntries.length);
+        const numObjects = Math.min(particles.length, this.cellEntries.length);
 
         // determine cell sizes
 
@@ -54,7 +54,7 @@ export class Hash {
         this.cellEntries.fill(0);
 
         for (let i = 0; i < numObjects; i++) {
-            let h = this.hashPos(particles[i].position);
+            const h = this.hashPos(particles[i].position);
             this.cellStart[h]++;
         }
 
@@ -70,7 +70,7 @@ export class Hash {
         // fill in objects ids
 
         for (let i = 0; i < numObjects; i++) {
-            let h = this.hashPos(particles[i].position);
+            const h = this.hashPos(particles[i].position);
             this.cellStart[h]--;
             this.cellEntries[this.cellStart[h]] = i;
         }
