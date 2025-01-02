@@ -1,15 +1,16 @@
 import '@testing-library/jest-dom';
 import { Hash } from '../HashMap';
-import { Particle, Position } from '../Particle';
+import { Particle } from '../Particle';
+import p5 from 'p5'; 
 
 describe('Hash', () => {
   test('query method should return the correct particles in the region', () => {
     // Create particles with known positions
     const particles = [
-      new Particle(1, new Position(5, 5)),
-      new Particle(1, new Position(15, 15)),
-      new Particle(1, new Position(25, 25)),
-      new Particle(1, new Position(35, 35)),
+      new Particle(1, new p5.Vector(5, 5)),
+      new Particle(1, new p5.Vector(15, 15)),
+      new Particle(1, new p5.Vector(25, 25)),
+      new Particle(1, new p5.Vector(35, 35)),
     ];
 
     // Initialize the hash grid with spacing = 10 and maxNumObjects = 10
@@ -19,7 +20,7 @@ describe('Hash', () => {
     hash.create(particles);
 
     // Query particles within a region centered at (10, 10) with maxDist = 10
-    const regionCenter = new Position(10, 10);
+    const regionCenter = new p5.Vector(10, 10);
     const maxDist = 10;
     const result = hash.query(regionCenter, maxDist);
 
@@ -36,7 +37,7 @@ describe('Hash', () => {
     expect(resultSorted).toEqual(expectedSorted);
 
     // Query a larger region
-    const largerRegionCenter = new Position(20, 20);
+    const largerRegionCenter = new p5.Vector(20, 20);
     const largerMaxDist = 15;
     const largerResult = hash.query(largerRegionCenter, largerMaxDist);
 
