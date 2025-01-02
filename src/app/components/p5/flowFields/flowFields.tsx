@@ -9,18 +9,18 @@ let rows: number;
 let cols: number;
 const inc = 0.1;
 let center: number[];
-const deltaZ = 0.005;
+const deltaZ = 0.005;//0.005;
 let particles: Particle[] = [];
 const nParticles = 1000;
 let flowField: FlowField;
-const showField = false;
+const showField = true;
 
 export const MySketch = () => (p: p5) => {
 
     p.setup = async () => {
         p.createCanvas(p.windowWidth, p.windowHeight, p.P2D);
-        cols = Math.floor(p.width / scale);
-        rows = Math.floor(p.height / scale);
+        cols = Math.round(p.width / scale);
+        rows = Math.round(p.height / scale);
         p.frameRate(64);
         center = [0, 0];
 
@@ -34,7 +34,7 @@ export const MySketch = () => (p: p5) => {
     p.draw = () => {
         p.background(0, 10);
 
-        if ( p.frameCount%10 === 0 ) console.log(p.frameRate());
+        //if ( p.frameCount%10 === 0 ) console.log(p.frameRate());
 
         const flowFieldData = flowField.generate(p);
 
