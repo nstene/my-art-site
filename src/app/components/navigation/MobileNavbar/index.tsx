@@ -22,7 +22,7 @@ const MobileNavbar = () => {
                     <ul className="space-y-4">
                         <li onClick={handleMouseClick} className="relative">
                             <Link href="">
-                                <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))]">2D Artworks</p>
+                                <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))]">2D Animations</p>
                             </Link>
 
                             {isDropdownOpen && (
@@ -52,6 +52,13 @@ const MobileNavbar = () => {
                                         <Link href="/classic-routes/TwoDPages/dla">
                                             <button className="p-4 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
                                                 DLA
+                                            </button>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link href="/classic-routes/TwoDPages/flowFields">
+                                            <button className="p-4 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                                                Flow Field
                                             </button>
                                         </Link>
                                     </li>

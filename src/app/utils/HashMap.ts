@@ -1,4 +1,5 @@
-import { Particle, Position } from './Particle';
+import { Particle } from './Particle';
+import p5 from 'p5';
 
 export class Hash {
     spacing: number; // will probably be twice the influenceRadius
@@ -21,16 +22,16 @@ export class Hash {
 
 
     // Converts particle coordinates into cell coordinates
-    positionToCellCoord(point: Position): Position {
+    positionToCellCoord(point: p5.Vector): p5.Vector {
         const cellX = Math.floor(point.x / this.spacing);
         const cellY = Math.floor(point.y / this.spacing);
-        return new Position(cellX, cellY)
+        return new p5.Vector(cellX, cellY)
     };
 
 
     // Convert a cell coordinate into a single number
     // Hash collisions (having different cells mapping to the same value) are unavoidable.
-    hashCoords(cellPosition: Position): number {
+    hashCoords(cellPosition: p5.Vector): number {
         const prime1 = 73856093; // Large prime numbers for hashing
         const prime2 = 19349663;
         const h = (cellPosition.x * prime1 + cellPosition.y * prime2) % this.tableSize;
@@ -39,7 +40,7 @@ export class Hash {
 
 
     // Takes the position of a particle and returns the hash = index in the flat grid array
-    hashPos(position: Position): number {
+    hashPos(position: p5.Vector): number {
         return this.hashCoords(this.positionToCellCoord(position));
     }
 
@@ -79,11 +80,11 @@ export class Hash {
     }
 
     // Query the particles in a region
-    query(regionCenter: Position, maxDist: number): Particle[] {
-        const minPositionCoordinates = new Position(regionCenter.x - maxDist, regionCenter.y - maxDist);
+    query(regionCenter: p5.Vector, maxDist: number): Particle[] {
+        const minPositionCoordinates = new p5.Vector(regionCenter.x - maxDist, regionCenter.y - maxDist);
         const minCellCoordinates = this.positionToCellCoord(minPositionCoordinates);
 
-        const maxPositionCoordinates = new Position(regionCenter.x + maxDist, regionCenter.y + maxDist);
+        const maxPositionCoordinates = new p5.Vector(regionCenter.x + maxDist, regionCenter.y + maxDist);
         const maxCellCoordinates = this.positionToCellCoord(maxPositionCoordinates);
 
         this.querySize = 0;
@@ -92,7 +93,7 @@ export class Hash {
 
         for (let xi = minCellCoordinates.x; xi <= maxCellCoordinates.x; xi++) {
             for (let yi = minCellCoordinates.y; yi <= maxCellCoordinates.y; yi++) {
-                const h = this.hashCoords(new Position(xi, yi));
+                const h = this.hashCoords(new p5.Vector(xi, yi));
                 const start = this.cellStart[h];
                 const end = this.cellStart[h + 1];
 
