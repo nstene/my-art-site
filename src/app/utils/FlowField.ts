@@ -10,19 +10,19 @@ export class FlowField {
     show: boolean;
     deltaZ: number;
 
-    constructor(rows: number, cols: number, deltaZ: number = 0, scale: number, show: boolean = false, p: p5) {
+    constructor(rows: number, cols: number, deltaZ: number = 0, scale: number, p: p5) {
         this.rows = rows;
         this.cols = cols;
         this.data = [];
         this.z = 0;
         this.deltaZ = deltaZ;
         this.scale = scale;
-        this.show = show;
+        this.show = false;
 
-        this.generate(p)
+        this.generate(p, this.show)
     }
 
-    generate(p: p5): Array<p5.Vector> {
+    generate(p: p5, show: boolean = false): Array<p5.Vector> {
         let debugAngles = [];
         let debugNoise = [];
         let yOffset = 0;
@@ -43,7 +43,7 @@ export class FlowField {
 
                 // Map noise value to a color
                 // HSB 2PI to link colors to a wheel, 100 values are for saturation and brightness ranges
-                if (this.show) {
+                if (show) {
                     p.push();
                     p.colorMode(p.HSB, p.TWO_PI, 100, 100);
                     p.stroke(angle, 30, 80);
