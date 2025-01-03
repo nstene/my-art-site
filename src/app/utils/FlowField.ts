@@ -1,5 +1,7 @@
-import { Calculus } from '@/app/utils/Calculus';
 import p5 from 'p5';
+
+const saturationRange = 100;
+const brightnessRange = 100;
 
 export class FlowField {
     rows: number;
@@ -30,10 +32,16 @@ export class FlowField {
     generate(p: p5, show: boolean = false): Array<p5.Vector> {
         const rMin = 300;
         const rMax = 400;
-        const periodFrames = 30 * 64;
-        const progressCircle = Math.pow(Math.sin(this.p.PI * (this.p.frameCount / periodFrames)), 2);
-        const progressRays = Math.pow(Math.sin(this.p.PI * (this.p.frameCount / periodFrames) + this.p.PI / 2), 2);
-        const progressNoise = Math.pow(Math.sin(2*this.p.PI * (this.p.frameCount / periodFrames)), 2);
+        const circlePeriodSeconds = 30;
+        const circlePeriodFrames = circlePeriodSeconds * 64;
+        const progressCircle = Math.pow(Math.sin(this.p.PI * (this.p.frameCount / circlePeriodFrames)), 2);
+        const progressRays = Math.pow(Math.sin(this.p.PI * (this.p.frameCount / circlePeriodFrames) + this.p.PI / 2), 2);
+        const progressNoise = Math.pow(Math.sin(2 * this.p.PI * (this.p.frameCount / circlePeriodFrames)), 2);
+
+        // Make saturation cycle
+        const saturationPeriodSeconds = 30;
+        const saturationPeriodFrames = saturationPeriodSeconds * 64;
+
         const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
 
         let yOffset = 0;
@@ -45,21 +53,21 @@ export class FlowField {
                 let angle = p.map(noiseValue, 0, 0.5, 0, p.TWO_PI);
                 let angleFinish = angle;
 
+                const canvasX = x * this.scale;
+                const canvasY = y * this.scale;
+                const cellPosition = this.p.createVector(canvasX - center.x, canvasY - center.y);
+                const norm = cellPosition.mag();
+
                 if (this.withCircle) {
                     let mag = 0.1;
-                    const canvasX = x * this.scale;
-                    const canvasY = y * this.scale;
-                    const cellPositions = this.p.createVector(canvasX - center.x, canvasY - center.y);
-                    const norm = cellPositions.mag();
                     if (norm > rMin && norm < rMax) {
-                        let vector = this.p.createVector(canvasX - center.x, canvasY - center.y);
-                        let tangDir = this.tangentialDirection(vector);
+                        let tangDir = this.tangentialDirection(cellPosition);
 
                         const angleToCircle = Math.atan2(tangDir.y, tangDir.x);
-                        const angleToRay = Math.atan2(vector.y, vector.x);
+                        const angleToRay = Math.atan2(cellPosition.y, cellPosition.x);
 
                         angleFinish =
-                        progressNoise * angle + // Noise-based angle
+                            progressNoise * angle + // Noise-based angle
                             progressCircle * angleToCircle +             // Circular behavior
                             progressRays * angleToRay;                   // Radial behavior
                         mag = 1;
@@ -73,11 +81,16 @@ export class FlowField {
                 this.data[index] = v;
 
                 // Map noise value to a color
-                // HSB 2PI to link colors to a wheel, 100 values are for saturation and brightness ranges
+                // HSB 2PI to link colors to a wheel
+                const modulatedSaturationMax = 60;
+                const minSaturation = 20;
+                const baseBrightness = 80;
+                const saturationModulator = Math.pow(Math.sin(this.p.PI * (norm / this.p.max(this.p.width, this.p.height)) - this.p.frameCount / 100), 4);
+
                 if (show) {
                     p.push();
-                    p.colorMode(p.HSB, p.TWO_PI, 100, 100);
-                    p.stroke(angle, 30, 80);
+                    p.colorMode(p.HSB, p.TWO_PI, saturationRange, brightnessRange);
+                    p.stroke(angle, minSaturation + modulatedSaturationMax * saturationModulator, baseBrightness);
                     p.translate((x + 1 / 2) * this.scale, (y + 1 / 2) * this.scale);
                     p.rotate(v.heading());
                     p.line(0, 0, this.scale / 2, 0);
