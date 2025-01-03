@@ -30,8 +30,8 @@ export const MySketch = () => (p: p5) => {
 
     p.setup = async () => {
         p.createCanvas(p.windowWidth, p.windowHeight, p.P2D);
-        cols = Math.round(p.width / scale);
-        rows = Math.round(p.height / scale);
+        cols = Math.round(p.width / scale) + 3;
+        rows = Math.round(p.height / scale) + 3;
         p.frameRate(64);
         center = [0, 0];
 
@@ -88,6 +88,13 @@ export const MySketch = () => (p: p5) => {
 
     p.windowResized = () => {
         p.resizeCanvas(p.windowWidth, p.windowHeight);
+
+        // Recalculate rows and cols for flow field
+        flowField.rows = Math.round(p.height / scale) + 3;
+        flowField.cols = Math.round(p.width / scale) + 3;
+
+        // Optionally regenerate the flow field with updated dimensions
+        flowField.generate(p);
     };
 
     function toggleHideFreeParticles() {
