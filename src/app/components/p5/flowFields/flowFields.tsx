@@ -16,6 +16,7 @@ const nParticles = 1000;
 let flowField: FlowField;
 let hideParticles = false;
 let hideFlowField = false;
+let img: p5.Image;
 
 export const MySketch = () => (p: p5) => {
 
@@ -28,12 +29,19 @@ export const MySketch = () => (p: p5) => {
         p.fullscreen(!isFullScreen); // Toggle full-screen mode
     }
 
+    p.preload = () => {
+        //img = p.loadImage("/images/logo.png"); // Replace with the path to your image
+    };
+
     p.setup = async () => {
         p.createCanvas(p.windowWidth, p.windowHeight, p.P2D);
         cols = Math.round(p.width / scale) + 3;
         rows = Math.round(p.height / scale) + 3;
         p.frameRate(64);
         center = [0, 0];
+        //img.filter(p.BLUR, 10);
+        //img.filter(p.INVERT);
+        //img.filter(p.THRESHOLD, 0.9);
 
         // Create button for full screen mode
         let fullScreenButtonPosition = 100;
@@ -74,7 +82,7 @@ export const MySketch = () => (p: p5) => {
 
         //if ( p.frameCount%10 === 0 ) console.log(p.frameRate());
 
-        const flowFieldData = flowField.generate(p, !hideFlowField);
+        const flowFieldData = flowField.createFlowFieldFromImage();
 
         for (const particle of particles) {
             particle.follow(flowFieldData, scale, cols);
