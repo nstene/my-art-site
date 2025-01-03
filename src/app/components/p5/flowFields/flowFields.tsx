@@ -1,6 +1,5 @@
 import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
-//import { FlowField } from '@/app/utils/FlowField';
 import { Particle } from '@/app/utils/Particle';
 import { FlowField } from '@/app/utils/FlowField';
 import { MobileAdaptator } from '@/app/utils/MobileAdaptator';
@@ -76,7 +75,7 @@ export const MySketch = () => (p: p5) => {
 
         //if ( p.frameCount%10 === 0 ) console.log(p.frameRate());
 
-        const flowFieldData = flowField.generate(p, !hideFlowField);
+        const flowFieldData = flowField.generate(p, !hideFlowField, MobileAdaptator.isMobileDevice());
 
         for (const particle of particles) {
             particle.follow(flowFieldData, scale, cols);

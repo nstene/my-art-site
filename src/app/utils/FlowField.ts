@@ -15,7 +15,7 @@ export class FlowField {
     p: p5;
     withCircle: boolean;
 
-    constructor(rows: number, cols: number, deltaZ: number = 0, scale: number, p: p5, withCircle: boolean = false) {
+    constructor(rows: number, cols: number, deltaZ: number = 0, scale: number, p: p5, withCircle: boolean = false, onMobileDevice: boolean = false) {
         this.rows = rows;
         this.cols = cols;
         this.data = [];
@@ -26,12 +26,16 @@ export class FlowField {
         this.p = p;
         this.withCircle = withCircle;
 
-        this.generate(p, this.show)
+        this.generate(p, this.show, onMobileDevice)
     }
 
-    generate(p: p5, show: boolean = false): Array<p5.Vector> {
-        const rMin = 300;
-        const rMax = 400;
+    generate(p: p5, show: boolean = false, onMobileDevice: boolean = false): Array<p5.Vector> {
+        let rMin = 300;
+        let rMax = 400;
+        if (onMobileDevice) {
+            rMin = 100;
+            rMax = 130;
+        }
         const circlePeriodSeconds = 30;
         const circlePeriodFrames = circlePeriodSeconds * 64;
         const progressCircle = Math.pow(Math.sin(this.p.PI * (this.p.frameCount / circlePeriodFrames)), 2);
