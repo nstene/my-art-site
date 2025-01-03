@@ -16,7 +16,7 @@ const nParticles = 1000;
 let flowField: FlowField;
 let hideParticles = false;
 let hideFlowField = false;
-let img: p5.Image;
+const withCircle = true;
 
 export const MySketch = () => (p: p5) => {
 
@@ -74,7 +74,7 @@ export const MySketch = () => (p: p5) => {
             particles.push(new Particle(0.1, p.createVector(p.random(p.width), p.random(p.height))));
         }
 
-        flowField = new FlowField(rows, cols, deltaZ, scale, p);
+        flowField = new FlowField(rows, cols, deltaZ, scale, p, withCircle);
     };
 
     p.draw = () => {
@@ -82,7 +82,7 @@ export const MySketch = () => (p: p5) => {
 
         //if ( p.frameCount%10 === 0 ) console.log(p.frameRate());
 
-        const flowFieldData = flowField.createFlowFieldFromImage();
+        const flowFieldData = flowField.generate(p, !hideFlowField);
 
         for (const particle of particles) {
             particle.follow(flowFieldData, scale, cols);
