@@ -22,7 +22,7 @@ const MobileNavbar = () => {
                     <ul className="space-y-4">
                         <li onClick={handleMouseClick} className="relative">
                             <Link href="">
-                                <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))]">2D Artworks</p>
+                                <p className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))]">2D Animations</p>
                             </Link>
 
                             {isDropdownOpen && (

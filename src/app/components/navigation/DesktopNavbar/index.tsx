@@ -33,7 +33,7 @@ const DesktopNavbar = () => {
           >
             <Link href="">
               <button className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                2D Artworks
+                2D Animations
               </button>
             </Link>
 
