@@ -30,9 +30,10 @@ export class FlowField {
     generate(p: p5, show: boolean = false): Array<p5.Vector> {
         const rMin = 300;
         const rMax = 400;
-        const periodFrames = 60 * 64;
-        const progress = Math.pow(Math.sin(this.p.PI * (this.p.frameCount / periodFrames)), 3);
-        console.log(progress);
+        const periodFrames = 30 * 64;
+        const progressCircle = Math.pow(Math.sin(this.p.PI * (this.p.frameCount / periodFrames)), 2);
+        const progressRays = Math.pow(Math.sin(this.p.PI * (this.p.frameCount / periodFrames) + this.p.PI / 2), 2);
+        const progressNoise = Math.pow(Math.sin(2*this.p.PI * (this.p.frameCount / periodFrames)), 2);
         const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
 
         let yOffset = 0;
@@ -42,8 +43,9 @@ export class FlowField {
                 let index = x + y * this.cols;
                 let noiseValue = p.noise(xOffset, yOffset, this.z);
                 let angle = p.map(noiseValue, 0, 0.5, 0, p.TWO_PI);
+                let angleFinish = angle;
 
-                if ( this.withCircle ) {
+                if (this.withCircle) {
                     let mag = 0.1;
                     const canvasX = x * this.scale;
                     const canvasY = y * this.scale;
@@ -52,13 +54,19 @@ export class FlowField {
                     if (norm > rMin && norm < rMax) {
                         let vector = this.p.createVector(canvasX - center.x, canvasY - center.y);
                         let tangDir = this.tangentialDirection(vector);
-                        angle *= (1 - progress);
-                        angle += Math.atan2(tangDir.y, tangDir.x);
+
+                        const angleToCircle = Math.atan2(tangDir.y, tangDir.x);
+                        const angleToRay = Math.atan2(vector.y, vector.x);
+
+                        angleFinish =
+                        progressNoise * angle + // Noise-based angle
+                            progressCircle * angleToCircle +             // Circular behavior
+                            progressRays * angleToRay;                   // Radial behavior
                         mag = 1;
                     }
-                } 
+                }
                 // Create vector, center there and rotate it according to its heading
-                let v = p5.Vector.fromAngle(angle);
+                let v = p5.Vector.fromAngle(angleFinish);
                 // Set Velocity magnitude
                 v.setMag(0.1);
                 // Populate the flowfield array with the vector
