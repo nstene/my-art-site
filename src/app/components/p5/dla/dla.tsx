@@ -243,7 +243,7 @@ export const MySketch = () => (p: p5) => {
         /////////////////////////////////////////////
 
         if (initialConditionsSelection === onClickString && p.mouseIsPressed) {
-            freeParticles.push(new Particle(initialRadius, p.createVector(p.mouseX, p.mouseY), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
+            freeParticles.push(new Particle(initialRadius, p.createVector(p.mouseX, p.mouseY), p.createVector(0, 0), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
         }
 
         if (initialConditionsSelection === initialConditionsString) {
@@ -259,7 +259,7 @@ export const MySketch = () => (p: p5) => {
                 const x = generationRadius * p.cos(randomAngle) + p.width / 2;
                 const y = generationRadius * p.sin(randomAngle) + p.height / 2;
 
-                freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
+                freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), p.createVector(0, 0), newFreeParticleColor));
             }
         }
 
@@ -275,7 +275,7 @@ export const MySketch = () => (p: p5) => {
     };
 
     function initialSeeding() {
-        aggregatedParticles.push(new Particle(initialRadius, p.createVector(p.windowWidth / 2, p.windowHeight / 2), p.createVector(0, 0), p.createVector(0, 0), aggregatedParticleColor));
+        aggregatedParticles.push(new Particle(initialRadius, p.createVector(p.windowWidth / 2, p.windowHeight / 2), p.createVector(0, 0), p.createVector(0, 0), p.createVector(0, 0), aggregatedParticleColor));
     }
 
     function initialConditions() {
@@ -287,7 +287,7 @@ export const MySketch = () => (p: p5) => {
                 const angle = p.random(360);
                 const x = 3 * generatingCircleRadius / 4 * p.cos(angle) + p.windowWidth / 2;
                 const y = 3 * generatingCircleRadius / 4 * p.sin(angle) + p.windowHeight / 2;
-                freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), freeParticleColor));
+                freeParticles.push(new Particle(initialRadius, p.createVector(x, y), p.createVector(0, 0), p.createVector(0, 0), p.createVector(0, 0), freeParticleColor));
             }
         }
     }
