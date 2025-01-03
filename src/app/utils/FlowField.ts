@@ -34,7 +34,7 @@ export class FlowField {
         let rMax = 400;
         if (onMobileDevice) {
             rMin = 100;
-            rMax = 130;
+            rMax = 150;
         }
         const circlePeriodSeconds = 30;
         const circlePeriodFrames = circlePeriodSeconds * 64;
