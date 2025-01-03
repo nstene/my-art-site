@@ -9,7 +9,7 @@ let rows: number;
 let cols: number;
 const deltaZ = 0.005;
 const particles: Particle[] = [];
-const nParticles = 1000;
+let nParticles = 1000;
 let flowField: FlowField;
 let hideParticles = false;
 let hideFlowField = false;
@@ -39,6 +39,7 @@ export const MySketch = () => (p: p5) => {
         cols = Math.round(p.width / scale) + 3;
         rows = Math.round(p.height / scale) + 3;
         if (MobileAdaptator.isMobileDevice()) {
+            nParticles = 500;
             fullScreenButtonPosition = 50;
             hideFlowFieldButtonPosition = 100;
             hideParticlesButtonPosition = 150;
