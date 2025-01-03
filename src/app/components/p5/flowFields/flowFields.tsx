@@ -8,10 +8,8 @@ import { MobileAdaptator } from '@/app/utils/MobileAdaptator';
 const scale = 20;
 let rows: number;
 let cols: number;
-const inc = 0.1;
-let center: number[];
-const deltaZ = 0.005;//0.005;
-let particles: Particle[] = [];
+const deltaZ = 0.005;
+const particles: Particle[] = [];
 const nParticles = 1000;
 let flowField: FlowField;
 let hideParticles = false;
@@ -38,10 +36,6 @@ export const MySketch = () => (p: p5) => {
         cols = Math.round(p.width / scale) + 3;
         rows = Math.round(p.height / scale) + 3;
         p.frameRate(64);
-        center = [0, 0];
-        //img.filter(p.BLUR, 10);
-        //img.filter(p.INVERT);
-        //img.filter(p.THRESHOLD, 0.9);
 
         // Create button for full screen mode
         let fullScreenButtonPosition = 100;

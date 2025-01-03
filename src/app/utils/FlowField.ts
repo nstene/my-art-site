@@ -39,7 +39,7 @@ export class FlowField {
         const progressNoise = Math.pow(Math.sin(2 * this.p.PI * (this.p.frameCount / circlePeriodFrames)), 2);
 
         // Make saturation cycle
-        const saturationPeriodSeconds = 30;
+        const saturationPeriodSeconds = 15;
         const saturationPeriodFrames = saturationPeriodSeconds * 64;
 
         const center = this.p.createVector(this.p.width / 2, this.p.height / 2);
@@ -48,9 +48,9 @@ export class FlowField {
         for (let y = 0; y < this.rows; y++) {
             let xOffset = 0;
             for (let x = 0; x < this.cols; x++) {
-                let index = x + y * this.cols;
-                let noiseValue = p.noise(xOffset, yOffset, this.z);
-                let angle = p.map(noiseValue, 0, 0.5, 0, p.TWO_PI);
+                const index = x + y * this.cols;
+                const noiseValue = p.noise(xOffset, yOffset, this.z);
+                const angle = p.map(noiseValue, 0, 0.5, 0, p.TWO_PI);
                 let angleFinish = angle;
 
                 const canvasX = x * this.scale;
@@ -58,10 +58,10 @@ export class FlowField {
                 const cellPosition = this.p.createVector(canvasX - center.x, canvasY - center.y);
                 const norm = cellPosition.mag();
 
+                let mag = 0.1;
                 if (this.withCircle) {
-                    let mag = 0.1;
                     if (norm > rMin && norm < rMax) {
-                        let tangDir = this.tangentialDirection(cellPosition);
+                        const tangDir = this.tangentialDirection(cellPosition);
 
                         const angleToCircle = Math.atan2(tangDir.y, tangDir.x);
                         const angleToRay = Math.atan2(cellPosition.y, cellPosition.x);
@@ -74,9 +74,9 @@ export class FlowField {
                     }
                 }
                 // Create vector, center there and rotate it according to its heading
-                let v = p5.Vector.fromAngle(angleFinish);
+                const v = p5.Vector.fromAngle(angleFinish);
                 // Set Velocity magnitude
-                v.setMag(0.1);
+                v.setMag(mag);
                 // Populate the flowfield array with the vector
                 this.data[index] = v;
 
@@ -85,7 +85,7 @@ export class FlowField {
                 const modulatedSaturationMax = 60;
                 const minSaturation = 20;
                 const baseBrightness = 80;
-                const saturationModulator = Math.pow(Math.sin(this.p.PI * (norm / this.p.max(this.p.width, this.p.height)) - this.p.frameCount / 100), 4);
+                const saturationModulator = Math.pow(Math.sin(this.p.PI * (norm / this.p.max(this.p.width, this.p.height)) - this.p.frameCount / saturationPeriodFrames), 4);
 
                 if (show) {
                     p.push();

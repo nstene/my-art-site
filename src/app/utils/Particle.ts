@@ -1,5 +1,4 @@
 import p5 from "p5";
-import { FlowField } from "./FlowField";
 
 export class Particle {
     radius: number;
@@ -55,7 +54,11 @@ export class Particle {
         p.push();
         p.stroke(255);
         p.fill(255);
-        p.line(this.position.x, this.position.y, this.prevPos.x, this.prevPos.y)
+        if ( asLine ) {
+            p.line(this.position.x, this.position.y, this.prevPos.x, this.prevPos.y)
+        } else {
+            p.circle(this.position.x, this.position.y, 2*this.radius)
+        }
         p.pop();
         this.updatePrev();
     }
