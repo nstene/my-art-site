@@ -35,7 +35,7 @@ export const MySketch = () => (p: p5) => {
         let hideFlowFieldButtonPosition = 150;
         let hideParticlesButtonPosition = 200;
         let fontSize = '18px';
-        if ( MobileAdaptator.isMobileDevice() ) scale = 10; 
+        if ( MobileAdaptator.isMobileDevice() ) scale = 15; 
         cols = Math.round(p.width / scale) + 3;
         rows = Math.round(p.height / scale) + 3;
         if (MobileAdaptator.isMobileDevice()) {
