@@ -1,27 +1,40 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
+    "baseUrl": "./",
+    "target": "ESNext",                            // Keep the existing target as ES2017
+    "lib": ["dom", "dom.iterable", "esnext"],      // Keep your libraries as they are
+    "allowJs": true,                               // Allows JavaScript files to be compiled
+    "skipLibCheck": true,                          // Skip type checking of declaration files
+    "strict": true,                                // Enables strict mode
+    "noEmit": true,                                // Prevents emitting compiled JS files
+    "esModuleInterop": true,                       // Ensures compatibility with CommonJS modules
+    "module": "ESNext",                          // Change to CommonJS for Node.js modules
+    "moduleResolution": "bundler",                    // Use Node module resolution
+    "resolveJsonModule": true,                     // Allow importing JSON files
+    "isolatedModules": true,                       // Ensures compatibility with isolated modules
+    "jsx": "preserve",                             // Keep JSX as it is for React projects
+    "incremental": true,                           // Enable incremental compilation
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["./src/*"],
+      "@/components/*": ["components/*"]
+    },
+    "types": ["node"],                             // Add 'node' to the types array for Node.js types
+    "esModuleInterop": true                        // Ensures smooth importing of CommonJS modules
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/types/p5.sound.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/types/p5.sound.d.ts",
+    "p5-custom.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
 }

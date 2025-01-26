@@ -1,7 +1,8 @@
 {
-    "folders": [
-        {
-            "path": "src/app/classic-routes/TwoDPages/mergedProject"
-        }
-    ]
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
 }

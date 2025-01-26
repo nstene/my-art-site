@@ -33,7 +33,7 @@ const DesktopNavbar = () => {
           >
             <Link href="">
               <button className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
-                2D Artworks
+                2D Animations
               </button>
             </Link>
 
@@ -52,6 +52,27 @@ const DesktopNavbar = () => {
                   <Link href="/classic-routes/TwoDPages/slime">
                     <button className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
                       Slime
+                    </button>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/classic-routes/TwoDPages/dreams">
+                    <button className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                      Dreams
+                    </button>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/classic-routes/TwoDPages/dla">
+                    <button className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                      DLA
+                    </button>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/classic-routes/TwoDPages/flowFields">
+                    <button className="p-2 rounded-full hover:bg-[radial-gradient(circle,rgba(64,64,64,1),rgba(64,64,64,0))] transition duration-1000 ease-in-out">
+                      Flow Field
                     </button>
                   </Link>
                 </li>
