@@ -1,7 +1,7 @@
 import p5 from 'p5';
 import { Snake, SnakeSegment } from '../../../utils/Snake';
 import { MobileAdaptator } from '@/app/utils/MobileAdaptator';
-
+import { WaveFunctionCollapse } from '@/app/utils/WaveFunctionCollapse';
 
 export const MySketch = () => (p: p5) => {
 
@@ -9,20 +9,34 @@ export const MySketch = () => (p: p5) => {
     let runButton: p5.Element;
     let playPauseButton: p5.Element;
     let isPaused = true;
-    const onClickString = 'On click';
-    const initialConditionsString = 'Initial conditions';
     let snake: Snake;
     const snakeLength = 50;
+    let angle: number;
+    const numSlices = 12;
+    let waveFunction: WaveFunctionCollapse;
+    const tileImagePaths = ['/tiles/demo/blank.png', '/tiles/demo/up.png', '/tiles/demo/down.png', '/tiles/demo/left.png', '/tiles/demo/right.png'];
+    let tileImages: p5.Image[] = [];
 
     function toggleFullScreen() {
         const isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
         p.fullscreen(!isFullScreen); // Toggle full-screen mode
     }
 
+    p.preload = () => {
+        for ( let i = 0; i<tileImagePaths.length; i++ ) {
+            tileImages[i] = p.loadImage(tileImagePaths[i])
+        }
+    };
+
     p.setup = () => {
         p.createCanvas(p.windowWidth, p.windowHeight);
         p.angleMode(p.DEGREES);
         p.frameRate(64);
+
+        //p.noLoop();
+
+        angle = 360 / numSlices; // Calculate the angle of each slice
+        p.noStroke();
 
         // Create button for full screen mode
         let fullScreenButtonPosition = 100;
@@ -54,14 +68,41 @@ export const MySketch = () => (p: p5) => {
 
         // Initialize Snake
         initialSeeding();
+
+        p.randomSeed(5);
+
+        // Initialize wavefunctioncollapse
+        const dims = [30, 30];
+        waveFunction = new WaveFunctionCollapse(tileImages, dims);
+    }
+
+    p.mousePressed = () => {
+        p.redraw();
     }
 
     p.draw = () => {
-        p.background(0);
+        p.background(0, 20);
 
         /////////////////////
         // DRAW BACKGROUND //
         /////////////////////
+
+        waveFunction.draw(p);
+        waveFunction.update(p);
+        /*
+        // Draw a pattern in each slice
+        if (p.frameCount % 10 === 0) {
+            for (let i = 0; i < numSlices; i++) {
+                p.push();
+                p.translate(p.width / 2, p.height / 2); // Move origin to center of the canvas
+                p.rotate(i * angle); // Rotate to the current slice
+                drawPattern();
+                p.scale(1, -1); // Mirror the pattern
+                drawPattern();
+                p.pop();
+            }
+        }
+        */
 
 
         ////////////////
@@ -80,6 +121,15 @@ export const MySketch = () => (p: p5) => {
             snake.edges(p);
         }
 
+    }
+
+    // Function to draw a random pattern
+    function drawPattern() {
+        p.fill(p.random(255), p.random(255), p.random(255));
+        let x = p.random(50, 500); // Random position within the slice
+        let y = p.random(-50, 500);
+        //p.triangle(x, y, x+100, y+100, x+200, y+200);
+        p.circle(x, y, 50)
     }
 
     function initialSeeding() {
