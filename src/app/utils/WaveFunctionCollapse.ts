@@ -1,5 +1,6 @@
 import { League_Gothic } from 'next/font/google';
 import p5 from 'p5';
+import { Tile } from './Tile';
 
 type GridCell = {
     collapsed: boolean;
@@ -12,41 +13,6 @@ const DOWN = 2;
 const LEFT = 3;
 const RIGHT = 4;
 
-/*
-const rules = {
-    BLANK: [
-        [BLANK, UP],
-        [BLANK, RIGHT],
-        [BLANK, DOWN],
-        [BLANK, LEFT]
-    ],
-    UP: [
-        [RIGHT, LEFT, DOWN],
-        [LEFT, UP, DOWN],
-        [BLANK, DOWN],
-        [RIGHT, UP, DOWN],
-    ],
-    RIGHT: [
-        [RIGHT, LEFT, DOWN],
-        [LEFT, UP, DOWN],
-        [RIGHT, LEFT, UP],
-        [BLANK, LEFT]
-    ],
-    DOWN: [
-        [BLANK, UP],
-        [LEFT, UP, DOWN],
-        [RIGHT, LEFT, UP],
-        [RIGHT, UP, DOWN]
-    ],
-    LEFT: [
-        [RIGHT, LEFT, DOWN],
-        [BLANK, RIGHT],
-        [RIGHT, LEFT, UP],
-        [UP, DOWN, RIGHT]
-    ]
-}
-*/
-
 const rules = { // We have four rules per tile, one per side, going from up to right clockwise
     0: [[BLANK, UP], [BLANK, RIGHT], [BLANK, DOWN], [BLANK, LEFT]], // Blank tile
     1: [[RIGHT, LEFT, DOWN], [LEFT, UP, DOWN], [BLANK, DOWN], [RIGHT, UP, DOWN]], // Up tile
@@ -58,15 +24,15 @@ const rules = { // We have four rules per tile, one per side, going from up to r
 // Make the grid a one-dimensional array, using i as line indexing and j for column indexing. 
 // Find cell on (i, j) with grid[i + j * nDims]
 export class WaveFunctionCollapse {
-    tileImages: p5.Image[] = [];;
+    tiles: Tile[] = [];;
     grid: GridCell[];
     dims: Array<number>; // Dimensions of the grid on the canvas
 
     constructor(
-        tileImages: p5.Image[] = [],
+        tiles: Tile[] = [],
         dims: Array<number>
     ) {
-        this.tileImages = tileImages;
+        this.tiles = tiles;
         this.dims = dims;
         this.grid = [];
 
@@ -211,7 +177,7 @@ export class WaveFunctionCollapse {
                     if (index === undefined) {
                         console.log('problem')
                     }
-                    p.image(this.tileImages[index], i * w, j * h, w, h)
+                    p.image(this.tiles[index].img, i * w, j * h, w, h)
                 } else {
                     p.fill(0);
                     p.stroke(255);

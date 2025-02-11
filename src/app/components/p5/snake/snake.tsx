@@ -2,6 +2,7 @@ import p5 from 'p5';
 import { Snake, SnakeSegment } from '../../../utils/Snake';
 import { MobileAdaptator } from '@/app/utils/MobileAdaptator';
 import { WaveFunctionCollapse } from '@/app/utils/WaveFunctionCollapse';
+import { Tile } from '@/app/utils/Tile';
 
 export const MySketch = () => (p: p5) => {
 
@@ -14,8 +15,9 @@ export const MySketch = () => (p: p5) => {
     let angle: number;
     const numSlices = 12;
     let waveFunction: WaveFunctionCollapse;
-    const tileImagePaths = ['/tiles/demo/blank.png', '/tiles/demo/up.png', '/tiles/demo/down.png', '/tiles/demo/left.png', '/tiles/demo/right.png'];
     let tileImages: p5.Image[] = [];
+    let tiles: Tile[] = [];
+    const dims = [30, 30];
 
     function toggleFullScreen() {
         const isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
@@ -23,9 +25,8 @@ export const MySketch = () => (p: p5) => {
     }
 
     p.preload = () => {
-        for ( let i = 0; i<tileImagePaths.length; i++ ) {
-            tileImages[i] = p.loadImage(tileImagePaths[i])
-        }
+        tileImages[0] = p.loadImage('/tiles/demo/blank.png');
+        tileImages[1] = p.loadImage('/tiles/demo/up.png');
     };
 
     p.setup = () => {
@@ -72,8 +73,13 @@ export const MySketch = () => (p: p5) => {
         p.randomSeed(5);
 
         // Initialize wavefunctioncollapse
-        const dims = [30, 30];
-        waveFunction = new WaveFunctionCollapse(tileImages, dims);
+        tiles[0] = new Tile(tileImages[0], [0, 0, 0, 0]);
+        tiles[1] = new Tile(tileImages[1], [0, 0, 0, 0]);
+        tiles[2] = tiles[1].rotate(2, p);
+        tiles[3] = tiles[1].rotate(3, p);
+        tiles[4] = tiles[1].rotate(1, p);
+
+        waveFunction = new WaveFunctionCollapse(tiles, dims);
     }
 
     p.mousePressed = () => {
