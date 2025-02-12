@@ -23,6 +23,8 @@ export class Snake {
     length: p5.Vector;
     color: number[];
     headDirection: p5.Vector;
+    hasEaten: boolean;
+    digesting: number;
 
     constructor(
         segments: SnakeSegment[],
@@ -39,9 +41,16 @@ export class Snake {
         this.color = color;
         this.thickness = thickness;
         this.length = length;
+        this.hasEaten = false;
+        this.digesting = 0;
     }
 
     update() {
+        if (this.digesting) {
+            this.digesting = this.digesting - 1
+        } else {
+            this.hasEaten = false;
+        }
         // Use .copy() to keep original position and direction unchanged
         const resultMult = this.segments[0].direction.copy().mult(this.velocity);
         const newHeadPosition = this.segments[0].position.copy().add(resultMult);

@@ -1,25 +1,6 @@
-import { League_Gothic } from 'next/font/google';
 import p5 from 'p5';
+import { GridCell } from './GridCell';
 import { Tile } from './Tile';
-
-type GridCell = {
-    collapsed: boolean;
-    options: Array<number>
-};
-
-const BLANK = 0;
-const UP = 1;
-const DOWN = 2;
-const LEFT = 3;
-const RIGHT = 4;
-
-const rules = { // We have four rules per tile, one per side, going from up to right clockwise
-    0: [[BLANK, UP], [BLANK, RIGHT], [BLANK, DOWN], [BLANK, LEFT]], // Blank tile
-    1: [[RIGHT, LEFT, DOWN], [LEFT, UP, DOWN], [BLANK, DOWN], [RIGHT, UP, DOWN]], // Up tile
-    2: [[BLANK, UP], [LEFT, UP, DOWN], [RIGHT, LEFT, UP], [RIGHT, UP, DOWN]], // Down tile
-    3: [[DOWN, RIGHT, LEFT], [BLANK, RIGHT], [RIGHT, LEFT, UP], [RIGHT, UP, DOWN]], // Left tile
-    4: [[RIGHT, LEFT, DOWN], [UP, DOWN, LEFT], [RIGHT, LEFT, UP], [BLANK, LEFT]], // Right tile
-};
 
 // Make the grid a one-dimensional array, using i as line indexing and j for column indexing. 
 // Find cell on (i, j) with grid[i + j * nDims]
@@ -38,10 +19,16 @@ export class WaveFunctionCollapse {
 
         // Initialize the grid with all options available in each cell
         for (let i = 0; i < dims[0] * dims[1]; i++) {
-            this.grid[i] = {
-                collapsed: false,
-                options: [BLANK, UP, DOWN, LEFT, RIGHT]
-            }
+            this.grid[i] = new GridCell(tiles.length)
+        }
+
+        this.generateAgencyRules();
+    }
+
+    // Generate agency rules
+    generateAgencyRules() {
+        for (let tile of this.tiles) {
+            tile.analyze(this.tiles)
         }
     }
 
@@ -72,6 +59,8 @@ export class WaveFunctionCollapse {
         const pick = p.random(cell.options);
         cell.options = [pick];
 
+        //console.table(gridCopy);
+
 
         ////////////////////////////////////////////////////////
         // UPDATE ALL CELL OPTIONS AFTER THAT CELL COLLAPSING //
@@ -84,15 +73,15 @@ export class WaveFunctionCollapse {
                 if (cell.collapsed) { // If cell has collapsed, give it to the next grid
                     nextGrid[index] = this.grid[index];
                 } else { // ELSE LOOK AT TILES AROUND AND DECREASE OPTIONS
-                    let options = [BLANK, UP, DOWN, LEFT, RIGHT];
+                    let options = new Array(this.tiles.length).fill(0).map((_, i) => i);
                     let validOptions = [];
                     // LOOK UP
                     if (j > 0) {
                         validOptions = [];
                         let up = this.grid[i + (j - 1) * this.dims[0]];
                         for (let option of up.options) {
-                            if (rules[option] && rules[option][2]) {
-                                const valid = rules[option][2] // 2 is the valid options for the cell in focus from the above cell's perspective
+                            if (this.tiles[option] && this.tiles[option].down) {
+                                const valid = this.tiles[option].down // 2 is the valid options for the cell in focus from the above cell's perspective
                                 validOptions = validOptions.concat(valid);
                             }
                         }
@@ -104,8 +93,8 @@ export class WaveFunctionCollapse {
                         validOptions = [];
                         let right = this.grid[(i + 1) + j * this.dims[0]];
                         for (let option of right.options) {
-                            if (rules[option] && rules[option][3]) {
-                                const valid = rules[option][3] // 3 is the valid options for the cell in focus from the right cell's perspective
+                            if (this.tiles[option] && this.tiles[option].left) {
+                                const valid = this.tiles[option].left // 3 is the valid options for the cell in focus from the right cell's perspective
                                 validOptions = validOptions.concat(valid);
                             }
                         }
@@ -117,8 +106,8 @@ export class WaveFunctionCollapse {
                         validOptions = [];
                         let down = this.grid[i + (j + 1) * this.dims[0]];
                         for (let option of down.options) {
-                            if (rules[option] && rules[option][0]) {
-                                const valid = rules[option][0] // 0 is the valid options for the cell in focus from the below cell's perspective
+                            if (this.tiles[option] && this.tiles[option].up) {
+                                const valid = this.tiles[option].up // 0 is the valid options for the cell in focus from the below cell's perspective
                                 validOptions = validOptions.concat(valid);
                             }
                         }
@@ -130,18 +119,19 @@ export class WaveFunctionCollapse {
                         validOptions = [];
                         let left = this.grid[(i - 1) + j * this.dims[0]];
                         for (let option of left.options) {
-                            if (rules[option] && rules[option][1]) {
-                                const valid = rules[option][1] // 1 is the valid options for the cell in focus from the LEFT cell's perspective
+                            if (this.tiles[option] && this.tiles[option].right) {
+                                const valid = this.tiles[option].right // 1 is the valid options for the cell in focus from the LEFT cell's perspective
                                 validOptions = validOptions.concat(valid);
                             }
                         }
                         this.checkValid(options, validOptions);
                     }
 
-                    nextGrid[index] = {
-                        collapsed: false,
-                        options: options
+                    if (options[0] === undefined) {
+                        console.log('problem')
                     }
+
+                    nextGrid[index] = new GridCell(options);
                 }
             }
         }
