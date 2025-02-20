@@ -167,7 +167,15 @@ export class WaveFunctionCollapse {
                     if (index === undefined) {
                         console.log('problem')
                     }
-                    p.image(this.tiles[index].img, i * w, j * h, w, h)
+                    try {
+                        p.image(this.tiles[index].img, i * w, j * h, w, h)
+                    } catch {
+                        p.push()
+                        p.fill('red')
+                        p.rect(i * w, j * h, w, h)
+                        p.pop()
+                        p.noLoop()
+                    }
                 } else {
                     p.fill(0);
                     p.stroke(255);

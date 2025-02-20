@@ -26,7 +26,9 @@ export const MySketch = () => (p: p5) => {
     const foodApparitionRate = 0.01;
     let food: boolean = false;
     let foodLocX: number;
-    let foodLocY: number;   
+    let foodLocY: number;
+    let digestionTime = 15;
+    const frameRate = 24;
 
     function toggleFullScreen() {
         const isFullScreen = p.fullscreen(); // Check if currently in full-screen mode
@@ -37,9 +39,9 @@ export const MySketch = () => (p: p5) => {
         tileImageSetDark[0] = p.loadImage('/tiles/demo/blank.png');
         tileImageSetDark[1] = p.loadImage('/tiles/demo/up.png');
 
-        
-        //tileImageSetColor[9] = p.loadImage('/tiles/shipibo/tile_3.png');
-        //tileImageSetColor[10] = p.loadImage('/tiles/shipibo/tile_4.png');
+
+        tileImageSetColor[20] = p.loadImage('/tiles/shipibo/tile_3.png');
+        tileImageSetColor[21] = p.loadImage('/tiles/shipibo/tile_4.png');
         tileImageSetColor[3] = p.loadImage('/tiles/shipibo/tile_0.png');
         tileImageSetColor[4] = p.loadImage('/tiles/shipibo/tile_1.png');
         tileImageSetColor[2] = p.loadImage('/tiles/shipibo/tile_2.png');
@@ -50,12 +52,22 @@ export const MySketch = () => (p: p5) => {
         tileImageSetColor[0] = p.loadImage('/tiles/shipibo/tile_9.png');
         tileImageSetColor[1] = p.loadImage('/tiles/shipibo/tile_10.png');
         tileImageSetColor[9] = p.loadImage('/tiles/shipibo/tile_11.png');
+        tileImageSetColor[10] = p.loadImage('/tiles/shipibo/tile_12.png');
+        tileImageSetColor[11] = p.loadImage('/tiles/shipibo/tile_13.png');
+        tileImageSetColor[12] = p.loadImage('/tiles/shipibo/tile_14.png');
+        tileImageSetColor[13] = p.loadImage('/tiles/shipibo/tile_15.png');
+        tileImageSetColor[14] = p.loadImage('/tiles/shipibo/tile_16.png');
+        tileImageSetColor[15] = p.loadImage('/tiles/shipibo/tile_17.png');
+        tileImageSetColor[16] = p.loadImage('/tiles/shipibo/tile_18.png');
+        tileImageSetColor[17] = p.loadImage('/tiles/shipibo/tile_19.png');
+        tileImageSetColor[18] = p.loadImage('/tiles/shipibo/tile_20.png');
+        tileImageSetColor[19] = p.loadImage('/tiles/shipibo/tile_21.png');
     };
 
     p.setup = () => {
         p.createCanvas(p.windowWidth, p.windowHeight);
         p.angleMode(p.DEGREES);
-        p.frameRate(64);
+        p.frameRate(frameRate);
 
         //p.noLoop();
 
@@ -101,9 +113,9 @@ export const MySketch = () => (p: p5) => {
         tileSetDark[2] = tileSetDark[1].rotate(1, p);
         tileSetDark[3] = tileSetDark[1].rotate(2, p);
         tileSetDark[4] = tileSetDark[1].rotate(3, p);
-        
+
         waveFunctionDark = new WaveFunctionCollapse(tileSetDark, dims);
-        
+
         // Initialize wavefunctioncollapse with color tiles
         //tileSetColor[9] = new Tile(tileImageSetColor[9], ['BBB', 'BBB', 'BBB', 'BBB']);
         //tileSetColor[10] = new Tile(tileImageSetColor[10], ['RRR', 'RRR', 'RRR', 'RRR']);
@@ -117,14 +129,28 @@ export const MySketch = () => (p: p5) => {
         tileSetColor[0] = new Tile(tileImageSetColor[0], ['GRG', 'GRG', 'GRG', 'GRG']);
         tileSetColor[1] = new Tile(tileImageSetColor[1], ['GGG', 'GGG', 'GBB', 'BBG']);
         tileSetColor[9] = new Tile(tileImageSetColor[9], ['BGG', 'GBG', 'GGB', 'BBB']);
+        tileSetColor[10] = new Tile(tileImageSetColor[10], ['GBG', 'GGG', 'GBG', 'GGG']);
+        tileSetColor[11] = new Tile(tileImageSetColor[11], ['GRG', 'GGG', 'GRG', 'GGG']);
+        tileSetColor[12] = new Tile(tileImageSetColor[12], ['GGG', 'GGG', 'GRG', 'GRG']);
+        tileSetColor[13] = new Tile(tileImageSetColor[13], ['GGG', 'GGG', 'GBG', 'GBG']);
+        tileSetColor[14] = new Tile(tileImageSetColor[14], ['GBB', 'BGG', 'GBG', 'GGG']);
+        tileSetColor[15] = new Tile(tileImageSetColor[15], ['GRR', 'RGG', 'GRG', 'GGG']);
+        tileSetColor[16] = new Tile(tileImageSetColor[16], ['RRG', 'GGG', 'GRG', 'GGR']);
+        tileSetColor[17] = new Tile(tileImageSetColor[17], ['BBG', 'GGG', 'GBG', 'GGB']);
+        tileSetColor[18] = new Tile(tileImageSetColor[18], ['GGG', 'GBG', 'GBG', 'GGG']);
+        tileSetColor[19] = new Tile(tileImageSetColor[19], ['GGG', 'GRG', 'GRG', 'GGG']);
+        tileSetColor[20] = new Tile(tileImageSetColor[20], ['BBB', 'BBB', 'BBB', 'BBB']);
+        tileSetColor[21] = new Tile(tileImageSetColor[21], ['RRR', 'RRR', 'RRR', 'RRR']);
 
         const initialSetLength = tileSetColor.length;
 
-        for ( let i = 0; i < initialSetLength; i++ ) {
-            for ( let j = 1; j < 4; j++) {
+        for (let i = 0; i < initialSetLength; i++) {
+            for (let j = 1; j < 4; j++) {
                 tileSetColor.push(tileSetColor[i].rotate(j, p));
             }
         }
+
+        p.randomSeed(1);
 
         waveFunctionColor = new WaveFunctionCollapse(tileSetColor, dims);
 
@@ -180,23 +206,25 @@ export const MySketch = () => (p: p5) => {
 
         if (snake.hasEaten) {
             waveFunction = waveFunctionColor;
+        } else {
+            waveFunction = waveFunctionDark;
         }
 
-         // draw grid
-         for (var x = 0; x < p.width; x += p.width / dims[0]) {
-            for (var y = 0; y < p.height; y += p.height / dims[1]) {
-                p.stroke(255);
-                p.strokeWeight(1);
-                p.line(x, 0, x, p.height);
-                p.line(0, y, p.width, y);
-            }
-        }
+        // draw grid
+        // for (var x = 0; x < p.width; x += p.width / dims[0]) {
+        //     for (var y = 0; y < p.height; y += p.height / dims[1]) {
+        //         p.stroke(255);
+        //         p.strokeWeight(1);
+        //         p.line(x, 0, x, p.height);
+        //         p.line(0, y, p.width, y);
+        //     }
+        // }
 
         /////////////////////////
         // Randomly spawn food //
         /////////////////////////
 
-        if ( snake.digesting ) {
+        if (snake.digesting) {
             return
         }
 
@@ -206,23 +234,24 @@ export const MySketch = () => (p: p5) => {
                 p.fill('orange');
                 foodLocX = p.random(p.width);
                 foodLocY = p.random(p.height);
-                p.rect(foodLocX, foodLocY, 20, 20);
+                p.rect(foodLocX, foodLocY, 30, 30);
                 food = true;
             }
         } else {
             p.fill('orange');
-            p.rect(foodLocX, foodLocY, 20, 20);
+            p.rect(foodLocX, foodLocY, 30, 30);
         }
 
         // Check if snake finds the food
         const distance = snake.segments[0].position.dist(p.createVector(foodLocX, foodLocY));
-        const squareDim = p.max(p.width, p.height)/p.min(dims);
-        if ( distance < squareDim ) {
+        const squareDim = p.max(p.width, p.height) / p.min(dims);
+        if (distance < squareDim) {
             snake.hasEaten = true;
-            snake.digesting = 1000;
+            snake.digesting = digestionTime * frameRate;
             waveFunction = waveFunctionColor;
             food = false;
         }
+
 
     }
 
